@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from .models import Card
+from .forms import PlayerForm
 
 def deck_generator():
     Card.objects.all().delete()
@@ -15,3 +16,7 @@ def deck_generator():
 
 def get_dec(request):
     cards = Card.objects.all()
+
+def home(request):
+    form = PlayerForm
+    return render(request, 'home.html', {'form': form})

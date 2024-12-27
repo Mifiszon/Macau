@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container d-flex justify-content-center align-items-center min-vh-100">
+        <div class="text-center">
+            <h1 class="mb-4">Witamy w Makao!</h1>
+            <p class="lead">Wpisz swój nick, aby rozpocząć grę</p>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary mt-3">Zatwierdź</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
