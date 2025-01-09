@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import Card
 from .forms import PlayerForm
 
@@ -19,4 +19,17 @@ def get_dec(request):
 
 def home(request):
     form = PlayerForm
+    if request.method == "POST":
+        form = PlayerForm(request.POST)
+        if form.is_valid():
+            nick = form.cleaned_data['nick']
+            request.session['nick'] = nick
+            return redirect('rules')
     return render(request, 'home.html', {'form': form})
+
+def rules(request):
+    if request.method == "POST":
+        selected_rules = request.POST.getlist('rules')
+        custom_settings = request.POST.get('custom_settings', None)
+        return redirect('game')
+    return render(request, rules.html)
