@@ -1,1 +1,38 @@
 {% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center">Wybierz Zasady Gry</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="rule1" name="rules" value="Standard">
+            <label for="rule1" class="form-check-label">Standardowe zasady</label>
+        </div>
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="rule2" name="rules" value="Custom" onclick="toggleCustomPanel(this)">
+            <label for="rule2" class="form-check-label">Własne zasady (Custom)</label>
+        </div>
+        <div id="customPanel" style="display: none;" class="mt-3">
+            <h4>Własne ustawienia dla kart</h4>
+            <!-- Przyklad zasad dla kart -->
+            <div>
+                <label for="jackRule">Zasada dla Waleta:</label>
+                <input type="text" id="jackRule" name="custom_settings[jack]" placeholder="Wprowadź zasadę">
+            </div>
+            <div>
+                <label for="queenRule">Zasada dla Damy:</label>
+                <input type="text" id="queenRule" name="custom_settings[queen]" placeholder="Wprowadź zasadę">
+            </div>
+            <!-- Dodaj więcej ustawień według potrzeby -->
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Rozpocznij Grę</button>
+    </form>
+</div>
+
+<script>
+function toggleCustomPanel(checkbox) {
+    const customPanel = document.getElementById('customPanel');
+    customPanel.style.display = checkbox.checked ? 'block' : 'none';
+}
+</script>
+{% endblock %}

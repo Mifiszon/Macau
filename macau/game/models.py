@@ -18,6 +18,16 @@ class Card(models.Model):
         
 class Player(models.Model):
     nick = models.CharField(max_length=20, unique=True)
+    player_hand = models.ManyToManyField(Card, related_name="player_hand")
     
     def __str__(self):
         return self.nick
+    
+class Game(models.Model):
+    player = models.OneToOneField(Player, on_delete=models.CASCADE, related_name="game_player")
+    computer_hand = models.ManyToManyField(Card, related_name="computer_hand")
+    deck = models.ManyToManyField(Card, related_name="deck")
+    last_played_card = models.ForeignKey(Card, on_delete=models.SET_NULL, null=True, related_name="last_played")
+                                         
+    def __str__(self):
+        return f"Game with {self.player.nick}"

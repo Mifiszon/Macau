@@ -1,0 +1,43 @@
+<!-- game.html -->
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Gra</title>
+</head>
+<body>
+    <h1>Gra: {{ player.nick }} vs Komputer</h1>
+
+    <h2>Ostatnia zagrana karta</h2>
+    {% if last_played_card %}
+        <p>{{ last_played_card }}</p>
+    {% else %}
+        <p>Brak zagranego ruchu</p>
+    {% endif %}
+
+    <h3>Twoje karty</h3>
+    <ul>
+        {% for card in player_hand %}
+            <li>
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" name="played_card" value="{{ card.id }}">
+                        {{ card }}
+                    </button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <h3>Karty komputera</h3>
+    <ul>
+        {% for card in computer_hand %}
+            <li>{{ card }}</li>
+        {% endfor %}
+    </ul>
+
+    {% if winner %}
+        <h3>Zwycięzca tej tury: {{ winner }}</h3>
+    {% endif %}
+</body>
+</html>

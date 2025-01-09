@@ -4,5 +4,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path("", views.home, name="home")
+    path("", views.home, name="home"),
+    path("rules/", views.rules, name='rules'),
+    path("game/", views.game, name='game')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
