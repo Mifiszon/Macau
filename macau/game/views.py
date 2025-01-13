@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from .models import Card, Player, Game
 from .forms import PlayerForm
+from rules_logic.rules import Rules
 import random
 
 def deck_generator():
@@ -34,9 +35,7 @@ def rules(request):
     """Strona z zasadami"""
     if request.method == "POST":
         selected_rules = request.POST.getlist('rules')
-        custom_settings = request.POST.get('custom_settings', None)
         request.session['selected_rules'] = selected_rules
-        request.session['custom_settings'] = custom_settings
         return redirect('game')
     return render(request, 'rules.html')
 
@@ -63,5 +62,16 @@ def game(request):
 
         game.last_played_card = None
         game.save()
+
+    selected_rules = request.session.get('selected_rules', [])
+
+    rules = Rules(rules=selected_rules)
+    
+    result = rules.apply_rules(cards, player_cards, [])
+
+    if result == "Win":
+        return render(request, 'game/win.html', {'player': player})
+    elif result == "Lose":
+        return render(request, 'game/lose.html', {'player': player})
 
     
