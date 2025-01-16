@@ -9,12 +9,15 @@
             <label for="rule1" class="form-check-label">Standardowe zasady</label>
         </div>
         <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="rule2" name="rules" value="Custom" onclick="toggleCustomPanel(this)">
-            <label for="rule2" class="form-check-label">Własne zasady (Custom)</label>
+            <input type="checkbox" class="form-check-input" id="rule2" name="rules" value="War">
+            <label for="rule2" class="form-check-label">Zasady wojny</label>
+        </div>
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="rule3" name="rules" value="Custom" onclick="toggleCustomPanel(this)">
+            <label for="rule3" class="form-check-label">Własne zasady (Custom)</label>
         </div>
         <div id="customPanel" style="display: none;" class="mt-3">
             <h4>Własne ustawienia dla kart</h4>
-            <!-- Przyklad zasad dla kart -->
             <div>
                 <label for="jackRule">Zasada dla Waleta:</label>
                 <input type="text" id="jackRule" name="custom_settings[jack]" placeholder="Wprowadź zasadę">
@@ -23,7 +26,6 @@
                 <label for="queenRule">Zasada dla Damy:</label>
                 <input type="text" id="queenRule" name="custom_settings[queen]" placeholder="Wprowadź zasadę">
             </div>
-            <!-- Dodaj więcej ustawień według potrzeby -->
         </div>
         <button type="submit" class="btn btn-primary mt-3">Rozpocznij Grę</button>
     </form>

@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from .models import Card, Player, Game
 from .forms import PlayerForm
-from rules_logic.rules import Rules
+from .rules_logic.rules import Rules
 import random
 
 def deck_generator():
