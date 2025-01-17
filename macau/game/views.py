@@ -8,17 +8,14 @@ def deck_generator():
     """Funkcja generuje talie kart"""
     Card.objects.all().delete()
 
-    colors = ['pik', 'kier', 'karo', 'walet']
+    colors = ['pik', 'kier', 'karo', 'trefl']
     markings = ['walet', 'dama', 'krol', 'as']
 
     for color in colors:
-        for number in range(2,11):
-            Card.objects.create(color = color, number = number)
+        for number in range(2, 11):
+            Card.objects.create(color=color, number=number)
         for marking in markings:
-            Card.objects.create(color = color, marking = marking)
-
-def get_dec(request):
-    cards = Card.objects.all()
+            Card.objects.create(color=color, marking=marking)
 
 def home(request):
     """Strona startowa"""
@@ -52,13 +49,20 @@ def game(request):
 
     game, created = Game.objects.get_or_create(player=player)
 
+    player_cards = []  
+    computer_cards = []
+    discard_pile = []
+
     if created:
+        # Rozdanie kart dla gracza i komputera
         player_cards = cards[:5]
         computer_cards = cards[5:10]
 
-        discard_pile = cards[10]
-        game.discard_pile.set(discard_pile)
+        # Pierwsza karta do stosu odrzuconych
+        discard_pile = [cards[10]]
 
+        # Ustawienie kart w grze
+        game.discard_pile.set(discard_pile)
         game.deck.set(cards[10:])
         game.player_hand.set(player_cards)
         game.computer_hand.set(computer_cards)
@@ -68,7 +72,7 @@ def game(request):
     selected_rules = request.session.get('selected_rules', [])
     rules = Rules(rules=selected_rules)
     
-    result = rules.apply_rules(cards, player_cards, [])
+    result = rules.apply_rules(cards, player_cards, discard_pile)
 
     if result == "Win":
         return render(request, 'game/win.html', {'player': player})
@@ -79,4 +83,5 @@ def game(request):
         'game': game,
         'player_cards': player_cards,
         'computer_cards': computer_cards,
+        'discard_pile': discard_pile[0] if discard_pile else None,  # Sprawdzamy, czy lista jest pusta
     })
