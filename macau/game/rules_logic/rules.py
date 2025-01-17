@@ -19,7 +19,7 @@ class Rules:
         if not player_hand:
             return "win"
         
-        top_card = discard_pile[-1]
+        top_card = discard_pile[0]
         valid_moves = [card for card in player_hand if card.color == top_card.color or card.number == top_card.number]
         if valid_moves:
             return valid_moves
@@ -47,11 +47,11 @@ class Rules:
         if not player_hand:
             return "win"
 
-        last_card = discard_pile[-1]
+        top_card = discard_pile[0]
 
         playable_cards = [
             card for card in player_hand 
-            if last_card is None or card.color == last_card.color or card.number == last_card.number
+            if top_card is None or card.color == top_card.color or card.number == top_card.number
         ]
 
         if playable_cards:

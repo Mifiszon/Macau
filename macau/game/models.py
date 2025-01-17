@@ -28,6 +28,7 @@ class Game(models.Model):
     deck = models.ManyToManyField(Card, related_name="deck")
     last_played_card = models.ForeignKey(Card, on_delete=models.SET_NULL, null=True, related_name="last_played")
     player_hand = models.ManyToManyField(Card, related_name="player_hand")
+    discard_pile = models.ManyToManyField(Card, related_name='discard_pile')
                                          
     def __str__(self):
         return f"Game with {self.player.nick}"

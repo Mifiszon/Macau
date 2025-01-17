@@ -56,15 +56,16 @@ def game(request):
         player_cards = cards[:5]
         computer_cards = cards[5:10]
 
+        discard_pile = cards[10]
+        game.discard_pile.set(discard_pile)
+
         game.deck.set(cards[10:])
         game.player_hand.set(player_cards)
         game.computer_hand.set(computer_cards)
 
-        game.last_played_card = None
         game.save()
 
     selected_rules = request.session.get('selected_rules', [])
-
     rules = Rules(rules=selected_rules)
     
     result = rules.apply_rules(cards, player_cards, [])
@@ -74,4 +75,8 @@ def game(request):
     elif result == "Lose":
         return render(request, 'game/lose.html', {'player': player})
 
-    
+    return render(request, 'game.html', {
+        'game': game,
+        'player_cards': player_cards,
+        'computer_cards': computer_cards,
+    })
