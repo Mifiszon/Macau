@@ -12,13 +12,17 @@ def deck_generator():
     markings = ['walet', 'dama', 'krol', 'as']
 
     for color in colors:
-        for number in range(2, 11):
-            Card.objects.create(color=color, number=number)
         for marking in markings:
-            Card.objects.create(color=color, marking=marking)
+            Card.objects.create(color=color,number=None, marking=marking)
+
+    for color in colors:
+        for number in range(2, 11):
+            Card.objects.create(color=color,marking=None, number=number)
+    
 
 def home(request):
     """Strona startowa"""
+    Player.objects.all().delete()
     form = PlayerForm()
     if request.method == "POST":
         form = PlayerForm(request.POST)
@@ -36,10 +40,17 @@ def rules(request):
         return redirect('game')
     return render(request, 'rules.html')
 
+def show_cards(request):
+        """Widok do wyświetlania wszystkich kart w grze"""
+        cards = Card.objects.all()  # Pobieramy wszystkie karty z bazy danych
+        return render(request, 'show_cards.html', {'cards': cards})
+
 def game(request):
     """Strona z grą"""
-    if not Card.objects.exists():
-        deck_generator()
+    #if not Card.objects.exists():
+    #    deck_generator()
+    
+    deck_generator()
 
     cards = list(Card.objects.all())
     random.shuffle(cards)
@@ -52,6 +63,7 @@ def game(request):
     player_cards = []  
     computer_cards = []
     discard_pile = []
+    deck = []
 
     if created:
         # Rozdanie kart dla gracza i komputera
@@ -60,12 +72,13 @@ def game(request):
 
         # Pierwsza karta do stosu odrzuconych
         discard_pile = [cards[10]]
+        deck = cards[11:]
 
         # Ustawienie kart w grze
         game.discard_pile.set(discard_pile)
-        game.deck.set(cards[10:])
         game.player_hand.set(player_cards)
         game.computer_hand.set(computer_cards)
+        game.deck.set(deck)
 
         game.save()
 
@@ -83,5 +96,7 @@ def game(request):
         'game': game,
         'player_cards': player_cards,
         'computer_cards': computer_cards,
+        'deck': deck,
         'discard_pile': discard_pile[0] if discard_pile else None,  # Sprawdzamy, czy lista jest pusta
     })
+

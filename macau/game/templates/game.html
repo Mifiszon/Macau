@@ -31,11 +31,11 @@
     </ul>
 
     <!-- Talia i liczba kart -->
-    <p>Liczba kart w talii: {{ deck }}</p>
+    <p>Liczba kart w talii: {{ deck|length }}</p>
 
     <!-- Karty komputera (ukryte) -->
     <h3>Karty komputera:</h3>
-    <p>Liczba kart: {{ computer_cards }}</p>
+    <p>Liczba kart: {{ computer_cards|length }}</p>
     <ul>
         {% for _ in computer_cards %}
             <li>🂠</li> <!-- Reprezentacja rewersu karty -->

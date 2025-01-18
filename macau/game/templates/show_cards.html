@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Wszystkie karty</title>
+</head>
+<body>
+    <h1>Wszystkie karty w talii</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Kolor</th>
+                <th>Numer</th>
+                <th>Oznaczenie</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for card in cards %}
+                <tr>
+                    <td>{{ card.color }}</td>
+                    <td>{{ card.number }}</td>
+                    <td>{{ card.marking }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="3">Brak kart w bazie danych.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
