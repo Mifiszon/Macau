@@ -12,6 +12,7 @@
                 <th>Kolor</th>
                 <th>Numer</th>
                 <th>Oznaczenie</th>
+                <th>Obrazek</th>
             </tr>
         </thead>
         <tbody>
@@ -20,10 +21,17 @@
                     <td>{{ card.color }}</td>
                     <td>{{ card.number }}</td>
                     <td>{{ card.marking }}</td>
+                    <td>
+                        {% if card.image %}
+                            <img src="{{ card.image.url }}" alt="{{ card.color }} {{ card.marking }}" width="100">  <!-- Wyświetlanie obrazu -->
+                        {% else %}
+                            Brak obrazka
+                        {% endif %}
+                    </td>
                 </tr>
             {% empty %}
                 <tr>
-                    <td colspan="3">Brak kart w bazie danych.</td>
+                    <td colspan="4">Brak kart w bazie danych.</td>
                 </tr>
             {% endfor %}
         </tbody>
