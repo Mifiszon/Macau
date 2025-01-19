@@ -74,7 +74,7 @@ button {
 
 #player-cards {
     position: absolute;
-    bottom: 20px;
+    bottom: 30px;
     width: 100%;
     display: flex;
     justify-content: center;
