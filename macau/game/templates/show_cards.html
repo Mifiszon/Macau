@@ -3,38 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <title>Wszystkie karty</title>
+    <style>
+        .cards-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;  /* Odstęp między kartami */
+        }
+
+        .card {
+            width: 120px; /* Szerokość karty */
+        }
+
+        .card img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
 </head>
 <body>
     <h1>Wszystkie karty w talii</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Kolor</th>
-                <th>Numer</th>
-                <th>Oznaczenie</th>
-                <th>Obrazek</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for card in cards %}
-                <tr>
-                    <td>{{ card.color }}</td>
-                    <td>{{ card.number }}</td>
-                    <td>{{ card.marking }}</td>
-                    <td>
-                        {% if card.image %}
-                            <img src="{{ card.image.url }}" alt="{{ card.color }} {{ card.marking }}" width="100">
-                        {% else %}
-                            Brak obrazka
-                        {% endif %}
-                    </td>
-                </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="4">Brak kart w bazie danych.</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+
+    <div class="cards-container">
+        {% for card in cards %}
+            <div class="card">
+                {% if card.image %}
+                    <img src="{{ card.image.url }}" alt="Karta">
+                {% else %}
+                    <p>Brak obrazka</p>
+                {% endif %}
+            </div>
+        {% empty %}
+            <p>Brak kart w bazie danych.</p>
+        {% endfor %}
+    </div>
 </body>
 </html>

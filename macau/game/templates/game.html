@@ -1,50 +1,69 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
+    {% load static %}
     <meta charset="UTF-8">
     <title>Gra: Makao</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
 </head>
 <body>
-    <h1>Gra: {{ player.nick }} vs Komputer</h1>
+    <header>
+        <h1>MAKAO</h1>
+        <h2>Player vs Komputer</h2>
+    </header>
 
-    <!-- Ostatnia zagrana karta -->
-    <h2>Ostatnia zagrana karta:</h2>
-    {% if discard_pile %}
-        <p>{{ discard_pile }}</p>
-    {% else %}
-        <p>Brak zagranego ruchu</p>
-    {% endif %}
+    <main>
+        <!-- Karty komputera (na górze) -->
+        <section id="computer-cards">
+            <h3>Karty komputera:</h3>
+            <p>Liczba kart: {{ game.computer_hand.count }}</p>
+            <ul>
+                {% for _ in game.computer_hand.all %}
+                    <li>
+                        <img src="{% static 'card_back.jpg' %}" alt="Rewers karty" width="100">
+                    </li>
+                {% endfor %}
+            </ul>
+        </section>
 
-    <!-- Twoje karty -->
-    <h3>Twoje karty:</h3>
-    <ul>
-        {% for card in player_cards %}
-            <li>
-                <form method="post">
-                    {% csrf_token %}
-                    <button type="submit" name="played_card" value="{{ card.id }}">
-                        {{ card }}
-                    </button>
-                </form>
-            </li>
-        {% endfor %}
-    </ul>
+        <!-- Ostatnia zagrana karta (na środku) -->
+        <section id="last-card">
+            <h2>Ostatnia zagrana karta:</h2>
+            {% if top_card %}
+                <div class="card">
+                    <img src="{{ top_card.image.url }}" alt="{{ top_card.color }} {{ top_card.marking }}" width="100">
+                </div>
+            {% else %}
+                <p>Brak zagranego ruchu</p>
+            {% endif %}
+        </section>
 
-    <!-- Talia i liczba kart -->
-    <p>Liczba kart w talii: {{ deck|length }}</p>
+        <!-- Informacje o grze po prawej stronie -->
+        <section id="game-info">
+            <h3>Informacje o grze:</h3>
+            <p>Liczba kart w talii: {{ game.deck.count }}</p>
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" name="draw_card">Dobierz kartę</button>
+            </form>
+        </section>
 
-    <!-- Karty komputera (ukryte) -->
-    <h3>Karty komputera:</h3>
-    <p>Liczba kart: {{ computer_cards|length }}</p>
-    <ul>
-        {% for _ in computer_cards %}
-            <li>🂠</li> <!-- Reprezentacja rewersu karty -->
-        {% endfor %}
-    </ul>
-
-    <!-- Komunikat o zwycięzcy -->
-    {% if winner %}
-        <h3>Zwycięzca tej tury: {{ winner }}</h3>
-    {% endif %}
+        <!-- Twoje karty (na dole) -->
+        <section id="player-cards">
+            <h3>Twoje karty:</h3>
+            <ul>
+                {% for card in game.player_hand.all %}
+                <li>
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit" name="play_card" value="{{ card.id }}">
+                            <img src="{{ card.image.url }}" alt="{{ card.color }} {{ card.marking }}" width="100">
+                        </button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+        </section>
+    </main>
 </body>
 </html>
