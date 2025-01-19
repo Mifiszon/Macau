@@ -8,7 +8,11 @@ class PlayerForm(forms.ModelForm):
         widgets = {
             'nick': forms.TextInput(attrs={
                 'placeholder': "Wpisz swój nick",
-                'class': 'form-control'
+                'class': 'form-control form-control-lg',
+                'aria-label': 'Nick gracza',
+                'autocomplete': 'off',
             }),
         }
-        labels = { 'nick': "Twój Nick"}
+        labels = {
+            'nick': "Twój Nick"
+        }

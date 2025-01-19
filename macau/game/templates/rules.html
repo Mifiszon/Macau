@@ -1,40 +1,65 @@
 {% extends 'base.html' %}
+
 {% block content %}
-<div class="container mt-5">
-    <h2 class="text-center">Wybierz Zasady Gry</h2>
+<div class="container mt-5 bg-dark">
+    <h2 class="text-center text-danger mb-4">Wybierz Zasady Gry</h2>
     <form method="post">
         {% csrf_token %}
-        <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="rule1" name="rules" value="Standard">
-            <label for="rule1" class="form-check-label">Standardowe zasady</label>
+
+        <div class="form-group mt-4" id="gameModeSection">
+            <h4 class="text-light">Wybierz tryb gry:</h4>
+            <div class="form-check">
+                <input type="radio" class="form-check-input" id="computerMode" name="game_mode" value="Computer">
+                <label for="computerMode" class="form-check-label text-light">Gra z komputerem</label>
+            </div>
+            <div class="form-check">
+                <input type="radio" class="form-check-input" id="1v1Mode" name="game_mode" value="1v1" disabled>
+                <label for="1v1Mode" class="form-check-label text-light">1v1 (z innym graczem)</label>
+            </div>
+            <div class="form-check">
+                <input type="radio" class="form-check-input" id="multiplayerMode" name="game_mode" value="Multiplayer" disabled>
+                <label for="multiplayerMode" class="form-check-label text-light">Multiplayer (więcej niż dwóch graczy)</label>
+            </div>
         </div>
-        <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="rule2" name="rules" value="War">
-            <label for="rule2" class="form-check-label">Zasady wojny</label>
+
+        <br>
+
+        <div class="form-group">
+            <h4 class="text-light">Wybierz zasady gry:</h4>
+            <div class="form-check">
+                <input type="radio" class="form-check-input" id="rule1" name="rules" value="Standard">
+                <label for="rule1" class="form-check-label text-light">Standardowe zasady</label>
+            </div>
+            <div class="form-check">
+                <input type="radio" class="form-check-input" id="rule2" name="rules" value="War">
+                <label for="rule2" class="form-check-label text-light">Zasady wojny</label>
+            </div>
+            <div class="form-check">
+                <input type="radio" class="form-check-input" id="rule3" name="rules" value="Custom" onclick="toggleCustomPanel(this)">
+                <label for="rule3" class="form-check-label text-light">Własne zasady (Custom)</label>
+            </div>
         </div>
-        <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="rule3" name="rules" value="Custom" onclick="toggleCustomPanel(this)">
-            <label for="rule3" class="form-check-label">Własne zasady (Custom)</label>
-        </div>
+
         <div id="customPanel" style="display: none;" class="mt-3">
-            <h4>Własne ustawienia dla kart</h4>
-            <div>
-                <label for="jackRule">Zasada dla Waleta:</label>
-                <input type="text" id="jackRule" name="custom_settings[jack]" placeholder="Wprowadź zasadę">
+            <h4 class="text-light">Własne ustawienia dla kart</h4>
+            <div class="form-group">
+                <label for="jackRule" class="text-light">Zasada dla Waleta:</label>
+                <input type="text" id="jackRule" name="custom_settings[jack]" class="form-control" placeholder="Wprowadź zasadę">
             </div>
-            <div>
-                <label for="queenRule">Zasada dla Damy:</label>
-                <input type="text" id="queenRule" name="custom_settings[queen]" placeholder="Wprowadź zasadę">
+            <div class="form-group">
+                <label for="queenRule" class="text-light">Zasada dla Damy:</label>
+                <input type="text" id="queenRule" name="custom_settings[queen]" class="form-control" placeholder="Wprowadź zasadę">
             </div>
         </div>
-        <button type="submit" class="btn btn-primary mt-3">Rozpocznij Grę</button>
+
+        <button type="submit" class="btn btn-danger mt-3 btn-lg w-100">Rozpocznij Grę</button>
     </form>
 </div>
 
 <script>
-function toggleCustomPanel(checkbox) {
+function toggleCustomPanel(radioButton) {
     const customPanel = document.getElementById('customPanel');
-    customPanel.style.display = checkbox.checked ? 'block' : 'none';
+    customPanel.style.display = radioButton.checked ? 'block' : 'none';
 }
 </script>
 {% endblock %}

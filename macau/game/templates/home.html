@@ -1,15 +1,22 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class="container d-flex justify-content-center align-items-center min-vh-100">
-        <div class="text-center">
-            <h1 class="mb-4">Witamy w Makao!</h1>
-            <p class="lead">Wpisz swój nick, aby rozpocząć grę</p>
-            <form method="post">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="btn btn-primary mt-3">Zatwierdź</button>
-            </form>
+    <div class="container d-flex justify-content-center align-items-center min-vh-100 bg-dark">
+        <div class="card shadow-lg p-4 rounded bg-dark border border-danger" style="border-width: 10px;">
+            <div class="text-center bg-dark">
+                <div class="dark-header">
+                    <h1 class="mb-4 text-danger">Zagraj w Makao</h1>
+                    <p class="lead mb-4 text-white">Makao to gra karciana, w której celem jest pozbycie się wszystkich kart. Karty trzeba odrzucać na podstawie kolorów lub numerów. Zagraj z przyjaciółmi lub z komputerem i sprawdź, kto wyjdzie zwycięsko!</p>
+                    <p class="font-weight-bold mb-4 text-light">Wpisz swój nick, aby rozpocząć grę:</p>
+                </div>
+                <form method="post" class="dark-form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        {{ form.as_p }}
+                    </div>
+                    <button type="submit" class="btn btn-danger mt-3 btn-lg w-100">Zatwierdź</button>
+                </form>
+            </div>
         </div>
     </div>
 {% endblock %}
