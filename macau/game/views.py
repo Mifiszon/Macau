@@ -13,11 +13,13 @@ def deck_generator():
 
     for color in colors:
         for marking in markings:
-            Card.objects.create(color=color,number=None, marking=marking)
+            image_path = f"cards/{marking}_{color}.png"
+            Card.objects.create(color=color,number=None, marking=marking, image=image_path)
 
     for color in colors:
         for number in range(2, 11):
-            Card.objects.create(color=color,marking=None, number=number)
+            image_path = f"cards/{number}_{color}.png"
+            Card.objects.create(color=color,marking=None, number=number, image=image_path)
     
 
 def home(request):
@@ -42,7 +44,7 @@ def rules(request):
 
 def show_cards(request):
         """Widok do wyświetlania wszystkich kart w grze"""
-        cards = Card.objects.all()  # Pobieramy wszystkie karty z bazy danych
+        cards = Card.objects.all()
         return render(request, 'show_cards.html', {'cards': cards})
 
 def game(request):
