@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Makao - Przegrana</title>
+    <link rel="stylesheet" href="{% static 'gamestyle.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Przepraszamy, {{ game.player.nick }}!</h1>
+        <h2>Przegrałeś grę...</h2>
+    </header>
+
+    <main>
+        <section id="lose-message">
+            <h3>Nie poddawaj się, {{ game.player.nick }}!</h3>
+            <p>Choć tym razem komputer był lepszy, masz jeszcze szansę na rewanż!</p>
+            <a href="/game/">Zagraj ponownie</a>
+        </section>
+    </main>
+</body>
+</html>

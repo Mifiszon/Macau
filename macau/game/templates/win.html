@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Makao - Wygrana</title>
+    <link rel="stylesheet" href="{% static 'gamestyle.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Gratulacje, {{ game.player.nick }}!</h1>
+        <h2>Wygrałeś grę!</h2>
+    </header>
+
+    <main>
+        <section id="win-message">
+            <h3>Świetna robota, {{ game.player.nick }}!</h3>
+            <p>Właśnie pokonałeś komputer i wygrałeś grę. Czas na odpoczynek! 😎</p>
+            <a href="/game/">Zagraj ponownie</a>
+        </section>
+    </main>
+</body>
+</html>
