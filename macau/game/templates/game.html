@@ -5,37 +5,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gra - Wybierz Kartę</title>
+    <link rel="stylesheet" href="{% static 'gamestyle.css' %}">
 </head>
 <body>
-    <h1>Witaj, {{ game.player.nick }}!</h1>
+    <header>
+        <h1>Witaj, {{ game.player.nick }}!</h1>
+    </header>
 
-    <h2>Ostatnia zagrana karta</h2>
-    <img src="{{ top_card.image.url }}" alt="Top card" style="width: 100px;">
-
-    <h2>Twoje karty</h2>
-    <form method="POST">
-        {% csrf_token %}
-        <div>
-            {% for card in game.player_hand.all %}
-                <button type="submit" name="play_card" value="true">
-                    <input type="radio" name="card_id" value="{{ card.id }}" required>
-                    <img src="{{ card.image.url }}" alt="{{ card.marking }} {{ card.color }}" style="width: 100px;">
-                </button>
+    <main>
+        <!-- Karty przeciwnika -->
+        <section id="computer-cards">
+            <h2>Karty przeciwnika</h2>
+            <p>{{ game.computer_hand.count }} kart</p>
+            {% for card in game.computer_hand.all %}
+                <img src="{% static 'card_back.jpg' %}" alt="Card back" class="card-image">
             {% endfor %}
-        </div>
-        <button type="submit" name="draw_card">Dobierz kartę</button>
-    </form>
+        </section>
 
-    {% if error %}
-        <p style="color: red;">{{ error }}</p>
-    {% endif %}
+        <!-- Ostatnia karta -->
+        <section id="last-card">
+            <h2>Ostatnia zagrana karta</h2>
+            <img src="{{ top_card.image.url }}" alt="Top card" class="card-image">
+        </section>
 
-    <h2>Karty przeciwnika</h2>
-    <p>{{ game.computer_hand.count }} kart</p>
-    {% for card in game.computer_hand.all %}
-        <img src="{% static 'card_back.jpg' %}" style="width: 100px;">
-    {% endfor %}
+        <!-- Moje karty -->
+        <section id="player-cards">
+            <h2>Twoje karty</h2>
+            <form method="POST">
+                {% csrf_token %}
+                <div>
+                    {% for card in game.player_hand.all %}
+                        <label>
+                            <input type="radio" name="card_id" value="{{ card.id }}" required>
+                            <img src="{{ card.image.url }}" alt="{{ card.marking }} {{ card.color }}" class="card-image">
+                        </label>
+                    {% endfor %}
+                </div>
+                <button type="submit" name="draw_card">Dobierz kartę</button>
+                <button type="submit" name="play_card" value="true">Zagraj kartę</button>
+            </form>
 
-    <a href="{% url 'home' %}">Zakończ grę</a>
+            {% if error %}
+                <p class="error">{{ error }}</p>
+            {% endif %}
+        </section>
+
+        <!-- Informacje o grze -->
+        <section id="game-info">
+            <h2>Informacje o grze</h2>
+            <p>Liczba kart w talii : {{ game.deck.count }}</p>
+            <!-- Możesz dodać tutaj więcej szczegółów dotyczących gry -->
+        </section>
+
+    </main>
 </body>
 </html>

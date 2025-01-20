@@ -2,6 +2,12 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100vh;
 }
 
 header {
@@ -10,54 +16,78 @@ header {
 }
 
 h1, h2 {
-    margin: 0;
+    margin: 10px 0;
 }
 
 main {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    height: 80vh;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+    flex-grow: 1;
+    position: relative;
 }
 
 #computer-cards {
+    position: absolute;
+    top: 20px;
     text-align: center;
-    margin-bottom: 30px;
+    width: 100%;
 }
 
 #last-card {
     text-align: center;
-    margin-bottom: 200px;
+    margin: 0 auto;
+    display: block;
+    margin-bottom: 70px;
 }
 
-#game-info {
-    text-align: right;
-    margin-bottom: 30px;
-    width: 200px;
-}
-
-#player-cards {
-    text-align: center;
-    margin-top: 30px;
-    width: 100%;
-}
-
-ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-li {
-    display: inline-block;
+.card-image {
+    width: 100px;
+    height: auto;
     margin: 10px;
 }
 
+#player-cards {
+    position: absolute;
+    bottom: 20px;
+    width: 100%;
+    text-align: center;
+}
+
 button {
-    background: none;
+    background-color: #007BFF;
+    color: white;
     border: none;
-    padding: 0;
+    padding: 10px 20px;
     cursor: pointer;
+    font-size: 16px;
+    margin-top: 20px;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.error {
+    color: red;
+}
+
+footer {
+    margin-top: auto;
+    text-align: center;
+}
+
+footer a {
+    text-decoration: none;
+    color: #007BFF;
+}
+
+footer a:hover {
+    text-decoration: underline;
 }
 
 #game-info {
@@ -65,23 +95,23 @@ button {
     right: 20px;
     top: 50%;
     transform: translateY(-50%);
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-#player-cards {
-    position: absolute;
-    bottom: 20px;
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-}
+@media (max-width: 600px) {
+    .card-image {
+        width: 80px;
+    }
 
-/* Ustawienie obrazków kart */
-.card img {
-    display: block;
-    margin: 0 auto;
-}
+    button {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
 
-.playercardinfo {
-    text-align: center;
-    margin-bottom: 100px;
+    #game-info {
+        width: 200px;
+    }
 }

@@ -164,9 +164,9 @@ def game(request):
     game.refresh_from_db()
 
     if game.player_hand.count() == 0:
-        return render(request, 'game/win.html', {'player': game.player})
+        return render(request, 'win.html', {'player': game.player})
     elif game.computer_hand.count() == 0:
-        return render(request, 'game/lose.html', {'player': game.player})
+        return render(request, 'lose.html', {'player': game.player})
 
     return render(request, 'game.html', {
         'game': game,
