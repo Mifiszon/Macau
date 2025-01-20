@@ -13,7 +13,6 @@ h1, h2 {
     margin: 0;
 }
 
-/* Layout główny */
 main {
     display: flex;
     flex-direction: column;
@@ -29,7 +28,7 @@ main {
 
 #last-card {
     text-align: center;
-    margin-bottom: 290px;
+    margin-bottom: 200px;
 }
 
 #game-info {
@@ -41,6 +40,7 @@ main {
 #player-cards {
     text-align: center;
     margin-top: 30px;
+    width: 100%;
 }
 
 ul {
@@ -60,11 +60,6 @@ button {
     cursor: pointer;
 }
 
-.card img {
-    display: block;
-    margin: 0 auto;
-}
-
 #game-info {
     position: absolute;
     right: 20px;
@@ -74,13 +69,19 @@ button {
 
 #player-cards {
     position: absolute;
-    bottom: 30px;
-    width: 100%;
+    bottom: 20px;
     display: flex;
     justify-content: center;
+    gap: 10px;
 }
 
-#player-cards ul {
-    display: flex;
-    gap: 10px;
+/* Ustawienie obrazków kart */
+.card img {
+    display: block;
+    margin: 0 auto;
+}
+
+.playercardinfo {
+    text-align: center;
+    margin-bottom: 100px;
 }

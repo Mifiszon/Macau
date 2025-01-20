@@ -3,7 +3,7 @@
 <head>
     {% load static %}
     <meta charset="UTF-8">
-    <title>Gra: Makao</title>
+    <title>Makao</title>
     <link rel="stylesheet" href="{% static 'gamestyle.css' %}">
     <style>
     </style>
@@ -15,7 +15,6 @@
     </header>
 
     <main>
-        <!-- Karty komputera (na górze) -->
         <section id="computer-cards">
             <h3>Karty komputera:</h3>
             <p>Liczba kart: {{ game.computer_hand.count }}</p>
@@ -28,9 +27,9 @@
             </ul>
         </section>
 
-        <!-- Ostatnia zagrana karta (na środku) -->
         <section id="last-card">
             <h2>Ostatnia zagrana karta:</h2>
+            <br>
             {% if top_card %}
                 <div class="card">
                     <img src="{{ top_card.image.url }}" alt="{{ top_card.color }} {{ top_card.marking }}" width="100">
@@ -40,9 +39,8 @@
             {% endif %}
         </section>
 
-        <!-- Informacje o grze po prawej stronie -->
         <section id="game-info">
-            <h3>Informacje o grze:</h3>
+            <h3>Gra:</h3>
             <p>Liczba kart w talii: {{ game.deck.count }}</p>
             <form method="post">
                 {% csrf_token %}
@@ -50,9 +48,8 @@
             </form>
         </section>
 
-        <!-- Twoje karty (na dole) -->
+        <h3 id="playercardinfo">Twoje karty:</h3>
         <section id="player-cards">
-            <h3>Twoje karty:</h3>
             <ul>
                 {% for card in game.player_hand.all %}
                 <li>

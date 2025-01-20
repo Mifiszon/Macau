@@ -83,50 +83,36 @@ def show_cards(request):
 
 def game(request):
     """
-    Strona z grą
+    Gra
     """
-    #if not Card.objects.exists():
-    #    deck_generator()
-    
-    deck_generator()
-
-    cards = list(Card.objects.all())
-    random.shuffle(cards)
+    if not Card.objects.exists():
+        deck_generator()
 
     player_nick = request.session.get('nick', 'Gracz')
     player, created = Player.objects.get_or_create(nick=player_nick)
 
     game, created = Game.objects.get_or_create(player=player)
 
-    player_cards = []  
-    computer_cards = []
-    discard_pile = []
-    deck = []
-
     if created:
-        # Rozdanie kart
+        # Rozdanie kart tylko dla nowej gry
+        cards = list(Card.objects.all())
+        random.shuffle(cards)
         player_cards = cards[:5]
         computer_cards = cards[5:11]
         discard_pile = [cards[11]]
         deck = cards[12:]
 
-        # Ustawienie kart w grze
         game.discard_pile.set(discard_pile)
         game.player_hand.set(player_cards)
         game.computer_hand.set(computer_cards)
         game.deck.set(deck)
         game.save()
 
-    selected_rules = request.session.get('selected_rules', [])
-    rules = Rules(rules=selected_rules)
-    
-    result = rules.apply_rules(cards, player_cards, discard_pile)
-
     if request.method == "POST":
         if "play_card" in request.POST:
             card_id = request.POST.get("card_id")
-            if card_id:
-                card = Card.objects.get.all(id=card_id)
+            try:
+                card = Card.objects.get(id=card_id)
                 if card in game.player_hand.all():
                     top_card = game.discard_pile.first()
                     if can_play(card, top_card):
@@ -136,9 +122,16 @@ def game(request):
                     else:
                         return render(request, 'game.html', {
                             'game': game,
-                            'error' : 'Nie możesz zagrać tej karty'
+                            'top_card': game.discard_pile.first(),
+                            'error': 'Nie możesz zagrać tej karty',
                         })
-                    
+            except Card.DoesNotExist:
+                return render(request, 'game.html', {
+                    'game': game,
+                    'top_card': game.discard_pile.first(),
+                    'error': 'Nie znaleziono karty.',
+                })
+
         elif "draw_card" in request.POST:
             if game.deck.exists():
                 next_card = game.deck.first()
@@ -148,15 +141,14 @@ def game(request):
 
     computer_turn(game)
 
-    if result == "Win":
+    if game.player_hand.count() == 0:
         return render(request, 'game/win.html', {'player': game.player})
-    elif result == "Lose":
+    elif game.computer_hand.count() == 0:
         return render(request, 'game/lose.html', {'player': game.player})
-    
-    top_card = game.discard_pile.first() if game.discard_pile.exists() else None
 
     return render(request, 'game.html', {
         'game': game,
-        'top_card': top_card,
+        'top_card': game.discard_pile.first(),
     })
+
 
