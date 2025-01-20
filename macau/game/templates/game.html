@@ -3,66 +3,39 @@
 <head>
     {% load static %}
     <meta charset="UTF-8">
-    <title>Makao</title>
-    <link rel="stylesheet" href="{% static 'gamestyle.css' %}">
-    <style>
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gra - Wybierz Kartę</title>
 </head>
 <body>
-    <header>
-        <h1>MAKAO</h1>
-        <h2>Player vs Komputer</h2>
-    </header>
+    <h1>Witaj, {{ game.player.nick }}!</h1>
 
-    <main>
-        <section id="computer-cards">
-            <h3>Karty komputera:</h3>
-            <p>Liczba kart: {{ game.computer_hand.count }}</p>
-            <ul>
-                {% for _ in game.computer_hand.all %}
-                    <li>
-                        <img src="{% static 'card_back.jpg' %}" alt="Rewers karty" width="100">
-                    </li>
-                {% endfor %}
-            </ul>
-        </section>
+    <h2>Ostatnia zagrana karta</h2>
+    <img src="{{ top_card.image.url }}" alt="Top card" style="width: 100px;">
 
-        <section id="last-card">
-            <h2>Ostatnia zagrana karta:</h2>
-            <br>
-            {% if top_card %}
-                <div class="card">
-                    <img src="{{ top_card.image.url }}" alt="{{ top_card.color }} {{ top_card.marking }}" width="100">
-                </div>
-            {% else %}
-                <p>Brak zagranego ruchu</p>
-            {% endif %}
-        </section>
+    <h2>Twoje karty</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <div>
+            {% for card in game.player_hand.all %}
+                <button type="submit" name="play_card" value="true">
+                    <input type="radio" name="card_id" value="{{ card.id }}" required>
+                    <img src="{{ card.image.url }}" alt="{{ card.marking }} {{ card.color }}" style="width: 100px;">
+                </button>
+            {% endfor %}
+        </div>
+        <button type="submit" name="draw_card">Dobierz kartę</button>
+    </form>
 
-        <section id="game-info">
-            <h3>Gra:</h3>
-            <p>Liczba kart w talii: {{ game.deck.count }}</p>
-            <form method="post">
-                {% csrf_token %}
-                <button type="submit" name="draw_card">Dobierz kartę</button>
-            </form>
-        </section>
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
 
-        <h3 id="playercardinfo">Twoje karty:</h3>
-        <section id="player-cards">
-            <ul>
-                {% for card in game.player_hand.all %}
-                <li>
-                    <form method="post">
-                        {% csrf_token %}
-                        <button type="submit" name="play_card" value="{{ card.id }}">
-                            <img src="{{ card.image.url }}" alt="{{ card.color }} {{ card.marking }}" width="100">
-                        </button>
-                    </form>
-                </li>
-                {% endfor %}
-            </ul>
-        </section>
-    </main>
+    <h2>Karty przeciwnika</h2>
+    <p>{{ game.computer_hand.count }} kart</p>
+    {% for card in game.computer_hand.all %}
+        <img src="{% static 'card_back.jpg' %}" style="width: 100px;">
+    {% endfor %}
+
+    <a href="{% url 'home' %}">Zakończ grę</a>
 </body>
 </html>
