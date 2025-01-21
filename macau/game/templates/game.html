@@ -13,7 +13,6 @@
     </header>
 
     <main>
-        <!-- Karty przeciwnika -->
         <section id="computer-cards">
             <h2>Karty przeciwnika</h2>
             <p>{{ game.computer_hand.count }} kart</p>
@@ -22,13 +21,11 @@
             {% endfor %}
         </section>
 
-        <!-- Ostatnia karta -->
         <section id="last-card">
             <h2>Ostatnia zagrana karta</h2>
             <img src="{{ top_card.image.url }}" alt="Top card" class="card-image">
         </section>
 
-        <!-- Moje karty -->
         <section id="player-cards">
             <h2>Twoje karty</h2>
             <form method="POST">
@@ -50,12 +47,10 @@
             {% endif %}
         </section>
 
-        <!-- Informacje o grze -->
         <section id="game-info">
             <img src="{% static 'card_deck.png' %}" alt="Card deck" class="card-deck" style="width: 50%; height: 40%;">
             <h2>Informacje o grze</h2>
             <p>Liczba kart w talii : {{ game.deck.count }}</p>
-            <!-- Możesz dodać tutaj więcej szczegółów dotyczących gry -->
         </section>
 
     </main>

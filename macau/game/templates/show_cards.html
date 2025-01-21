@@ -7,11 +7,11 @@
         .cards-container {
             display: flex;
             flex-wrap: wrap;
-            gap: 20px;  /* Odstęp między kartami */
+            gap: 20px;
         }
 
         .card {
-            width: 120px; /* Szerokość karty */
+            width: 120px;
         }
 
         .card img {
@@ -30,8 +30,6 @@
                     <p>Brak obrazka</p>
                 {% endif %}
             </div>
-        {% empty %}
-            <p>Brak kart w bazie danych.</p>
         {% endfor %}
     </div>
 </body>

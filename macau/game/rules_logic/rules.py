@@ -3,37 +3,44 @@ class Rules:
         self.rules = rules
         self.custom_settings = custom_settings
 
-    def apply_rules(self, deck, player_hand, discard_pile):
+    def apply_rules(self, card, top_card):
+        """
+        Aplikuje aktywne zasady do gry.
+        """
         if "Standard" in self.rules:
-            self.apply_standard_rules(deck, player_hand, discard_pile)
+            if self.apply_standard_rules(card, top_card):
+                return True
+        if "War" in self.rules:
+            if self.apply_war_rules(card, top_card):
+                return True
         if "Custom" in self.rules:
-            self.apply_custom_rules(deck, player_hand, discard_pile)
+            if self.apply_custom_rules(card, top_card):
+                return True
+        return False
 
-    def apply_standard_rules(self, deck, player_hand, discard_pile):
+    def apply_standard_rules(self, card, top_card, ):
         """
         Zasady standardowe Makao:
         - Można położyć kartę o tym samym kolorze lub tym samym numerze
-        - Jeśli gracz nie może zagrać żadnej karty, dobiera jedną z talii głównej
-        - Gra kończy się, gdy gracz nie ma kart na ręce
         """
-        if not player_hand:
-            return "win"
+        if card.number and top_card.number:
+            if card.number == top_card.number:
+                return True
+    
+        if card.marking and top_card.marking:
+            if card.marking == top_card.marking:
+                return True
         
-        top_card = discard_pile[0]
-        valid_moves = [card for card in player_hand if card.color == top_card.color or card.number == top_card.number]
-        if valid_moves:
-            return valid_moves
-        else:
-            if deck:
-                player_hand.append(deck.pop())
-            return "draw"
+        if card.color == top_card.color:
+            return True
         
-    def apply_war_rules(self, deck, player_hand, discard_pile):
+        return False
+
+        
+    def apply_war_rules(self, card, top_card):
         """
-        Zasady Makao bitwa:
+        Zasady Makao bitwa (war):
         - Można położyć kartę o tym samym kolorze lub tym samym numerze
-        - Jeśli gracz nie może zagrać żadnej karty, dobiera jedną z talii głównej
-        - Gra kończy się, gdy gracz nie ma kart na ręce
         - Karta 2 dowolnego koloru - nastepny gracz dobiera 2 karty
         - Karta 3 dowolnego koloru - nastepny gracz dobiera 3 karty
         - Karta 4 dowolnego koloru - nastepny gracz daje 4 albo pauzje
@@ -44,51 +51,46 @@ class Rules:
         - Karta Król karo/pik - bitny, nastepny gracz dobiera 5 kart
         - Karta Król trefl/kier - niebitny, analuje króla bitnego
         """
-        if not player_hand:
-            return "win"
+        if card.number and top_card.number:
+            if card.number == top_card.number:
+                return True
+    
+        if card.marking and top_card.marking:
+            if card.marking == top_card.marking:
+                return True
+        
+        if card.color == top_card.color:
+            return True
 
-        top_card = discard_pile[0]
+        if card.number == 2:
+            return "draw_2_cards"
 
-        playable_cards = [
-            card for card in player_hand 
-            if top_card is None or card.color == top_card.color or card.number == top_card.number
-        ]
+        if card.number == 3:
+            return "draw_3_cards"
 
-        if playable_cards:
-            played_card = playable_cards[0]
-            player_hand.remove(played_card)
-            discard_pile.append(played_card)
+        if card.number == 4:
+            return "play_4_or_skip"
 
-            if played_card.number == 2:
-                self.force_draw(deck, 2)
-            elif played_card.number == 3:
-                self.force_draw(deck, 3)
-            elif played_card.number == 4:
-                pass
-            elif played_card.marking == 'walet':
-                pass
-            elif played_card.marking == 'dama':
-                if played_card.color in ['karo', 'pik']:
-                    # Dama bitna
-                    pass
-                elif played_card.color in ['kier', 'trefl']:
-                    # Dama niebitna
-                    pass
-            elif played_card.marking == 'krol':
-                if played_card.color in ['karo', 'pik']:
-                    # Król bitny
-                    self.force_draw(deck, 5)
-                elif played_card.color in ['kier', 'trefl']:
-                    # Król niebitny
-                    pass
-        else:
-            if deck:
-                drawn_card = deck.pop(0)
-                player_hand.append(drawn_card)
+        if card.marking == 'walet':
+            return "ask_for_card"
 
-        if not player_hand:
-            return "win"
-        return "continue"
+        if card.marking == 'dama':
+            if card.color in ['kier', 'pik']:
+                return "bitna"
+            elif card.color in ['karo', 'trefl']:
+                return "niebitna"
 
-    def apply_custom_rules(self, deck):
+        if card.marking == 'krol':
+            if card.color in ['kier', 'pik']:
+                return "bitny, draw_5_cards"
+            elif card.color in ['karo', 'trefl']:
+                return "niebitny, cancel_bitny"
+
+        return False
+
+
+    def apply_custom_rules(self, card, top_card):
+        """
+        Zasady własne
+        """
         pass

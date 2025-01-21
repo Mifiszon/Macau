@@ -18,7 +18,7 @@
         <img src="{% static 'winner.jpg' %}" alt="Gratulacje" class="img-fluid rounded shadow mb-4">
 
         <section id="win-message" class="p-4 bg-white rounded shadow">
-            <h3 class="mb-3 text-secondary">Świetna robota, {{ game.player.nick }}!</h3>
+            <h3 class="mb-3 text-secondary">Świetna robota {{ game.player.nick }}!</h3>
             <p class="lead">Pokonałeś komputer i wygrałeś grę. Może rewanż?</p>
 
             <a href="{% url 'home' %}" class="btn btn-success btn-lg">Zagraj ponownie</a>
