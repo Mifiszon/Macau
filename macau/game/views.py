@@ -30,46 +30,43 @@ def computer_turn(game):
     computer_hand = list(game.computer_hand.all())
     top_card = game.discard_pile.first()
 
-    print(f"Top card: {top_card.image}")
+    ##print(f"Top card: {top_card.image}")
     
-    # Try to play a valid card
     for card in computer_hand:
         if can_play(card, top_card):
-            game.computer_hand.remove(card)  # Remove card from the hand
-            print(f"Before: {[c.image for c in game.discard_pile.all()]}")
-            game.discard_pile.add(card)  # Add the card to the discard pile
-            print(f"After: {[c.image for c in game.discard_pile.all()]}")
+            game.computer_hand.remove(card)
+            ##print(f"Before: {[c.image for c in game.discard_pile.all()]}")
+            game.discard_pile.add(card)
+            ##print(f"After: {[c.image for c in game.discard_pile.all()]}")
             game.discard_pile.set([card])
-            print(f"zoo: {[c.image for c in game.discard_pile.all()]}")
+            ##print(f"zoo: {[c.image for c in game.discard_pile.all()]}")
             game.save()
-            print(f"Computer played: {card.image}")
-            return  # End the turn after playing a card
+            ##print(f"Computer played: {card.image}")
+            return
 
-    # If no card could be played, draw a card from the deck
     if game.deck.exists():
         next_card = game.deck.first()
-        game.computer_hand.add(next_card)  # Add the drawn card to the hand
-        game.deck.remove(next_card)  # Remove the card from the deck
+        game.computer_hand.add(next_card)
+        game.deck.remove(next_card)
         game.save()
-        print(f"Computer drew: {next_card.image}")
+        ##print(f"Computer drew: {next_card.image}")
 
 def can_play(card, top_card):
     """
     Czy karte mozna zagrac
     """
-    print(f"Top Card: {top_card}, played Card: {card}")
-    print(f"Comparing: Card color: {card.color}, top color: {top_card.color}")
-    print(f"Comparing: Card number: {card.number}, top number: {top_card.number}")
+    ##print(f"Top Card: {top_card}, played Card: {card}")
+    ##print(f"Comparing: Card color: {card.color}, top color: {top_card.color}")
+    ##print(f"Comparing: Card number: {card.number}, top number: {top_card.number}")
+
     if card.number and top_card.number:
         if card.number == top_card.number:
             return True
     
-    # Jeśli karta ma marking, porównaj marking
     if card.marking and top_card.marking:
         if card.marking == top_card.marking:
             return True
     
-    # Porównanie kolorów
     if card.color == top_card.color:
         return True
     
@@ -138,13 +135,13 @@ def game(request):
                 top_card = game.discard_pile.first()
                 if can_play(card, top_card):
                     game.player_hand.remove(card)
-                    print(f"Before: {[c.image for c in game.discard_pile.all()]}")
+                    ##print(f"Before: {[c.image for c in game.discard_pile.all()]}")
                     game.discard_pile.add(card)
-                    print(f"After: {[c.image for c in game.discard_pile.all()]}")
+                    ##print(f"After: {[c.image for c in game.discard_pile.all()]}")
                     game.discard_pile.set([card])
-                    print(f"zoo: {[c.image for c in game.discard_pile.all()]}")
+                    ##print(f"zoo: {[c.image for c in game.discard_pile.all()]}")
                     game.save()
-                    print(f"Zagrano kartę: {card.image}, Discard Pile: {[c.image for c in game.discard_pile.all()]}")
+                    ##print(f"Zagrano kartę: {card.image}, Discard Pile: {[c.image for c in game.discard_pile.all()]}")
                 else:
                     return render(request, 'game.html', {
                         'game': game,
@@ -164,9 +161,9 @@ def game(request):
     game.refresh_from_db()
 
     if game.player_hand.count() == 0:
-        return render(request, 'win.html', {'player': game.player})
+        return render(request, 'win.html', {'game': game})
     elif game.computer_hand.count() == 0:
-        return render(request, 'lose.html', {'player': game.player})
+        return render(request, 'lose.html', {'game': game})
 
     return render(request, 'game.html', {
         'game': game,

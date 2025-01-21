@@ -3,20 +3,25 @@
 <head>
     {% load static %}
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Makao - Wygrana</title>
     <link rel="stylesheet" href="{% static 'gamestyle.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-    <header>
-        <h1>Gratulacje, {{ game.player.nick }}!</h1>
-        <h2>Wygrałeś grę!</h2>
+<body class="text-center bg-light py-5">
+    <header class="mb-4">
+        <h1 class="display-4 fw-bold text-primary">Gratulacje {{ game.player.nick }}!</h1>
+        <h2 class="text-success">Wygrałeś!</h2>
     </header>
 
-    <main>
-        <section id="win-message">
-            <h3>Świetna robota, {{ game.player.nick }}!</h3>
-            <p>Właśnie pokonałeś komputer i wygrałeś grę. Może rewanż ?</p>
-            <a href="/game/">Zagraj ponownie</a>
+    <main class="container">
+        <img src="{% static 'winner.jpg' %}" alt="Gratulacje" class="img-fluid rounded shadow mb-4">
+
+        <section id="win-message" class="p-4 bg-white rounded shadow">
+            <h3 class="mb-3 text-secondary">Świetna robota, {{ game.player.nick }}!</h3>
+            <p class="lead">Pokonałeś komputer i wygrałeś grę. Może rewanż?</p>
+
+            <a href="{% url 'home' %}" class="btn btn-success btn-lg">Zagraj ponownie</a>
         </section>
     </main>
 </body>
