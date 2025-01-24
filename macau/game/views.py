@@ -105,6 +105,9 @@ def show_cards(request):
         return render(request, 'show_cards.html', {'cards': cards})
 
 def game(request):
+    """
+    Widok gry
+    """
     if not Card.objects.exists():
         deck_generator()
 
