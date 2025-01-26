@@ -9,6 +9,7 @@ class Card(models.Model):
     marking = models.CharField(max_length=10, choices=MARKINGS, null=True, blank=True)
     function = models.CharField(max_length=100, null=True, blank=True)
     image = models.ImageField(upload_to="cards/", null=True)
+    order = models.IntegerField(default=0)
 
     def __str__(self):
         if self.marking:
