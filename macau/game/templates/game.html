@@ -33,13 +33,15 @@
                 <div>
                     {% for card in game.player_hand.all %}
                         <label>
-                            <input type="radio" name="card_id" value="{{ card.id }}" required>
+                            <input type="radio" name="card_id" value="{{ card.id }}">
                             <img src="{{ card.image.url }}" alt="{{ card.marking }} {{ card.color }}" class="card-image">
                         </label>
                     {% endfor %}
                 </div>
-                <button type="submit" name="draw_card">Dobierz kartę</button>
+                
                 <button type="submit" name="play_card" value="true">Zagraj kartę</button>
+
+                <button type="submit" name="draw_card" value="true">Dobierz kartę</button>
             </form>
 
             {% if error %}
@@ -50,7 +52,7 @@
         <section id="game-info">
             <img src="{% static 'card_deck.png' %}" alt="Card deck" class="card-deck" style="width: 50%; height: 40%;">
             <h2>Informacje o grze</h2>
-            <p>Liczba kart w talii : {{ game.deck.count }}</p>
+            <p>Liczba kart w talii: {{ game.deck.count }}</p>
         </section>
 
     </main>

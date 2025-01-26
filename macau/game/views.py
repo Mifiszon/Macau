@@ -24,6 +24,24 @@ def deck_generator():
             image_path = f"cards/{number}_{color}.png"
             Card.objects.create(color=color,marking=None, number=number, image=image_path)
 
+def refresh_deck(game):
+    """
+    Dodaje karty z odrzuoconch do talii
+    """
+    discard_cards = list(game.discard_pile.all())
+
+    if discard_cards:
+        last_card = discard_cards[-1]
+        rest_cards = discard_cards[:-1]
+
+        random.shuffle(rest_cards)
+
+        game.deck.set(rest_cards)
+        game.save()
+
+        game.discard_pile.set([last_card])
+        game.save()
+
 def get_last_card(game):
     """
     ostatnio zagrana karta
@@ -43,6 +61,9 @@ def computer_turn(game):
     """
     Ruch kompa
     """
+    if not game.deck.exists():
+        return
+    
     computer_hand = list(game.computer_hand.all())
     top_card = get_last_card(game)
 
@@ -54,7 +75,6 @@ def computer_turn(game):
             #print(f"Before: {[c.image for c in game.discard_pile.all()]}")
             add_to_pile(game, card)
             #print(f"After: {[c.image for c in game.discard_pile.all()]}")
-            #print(f"zoo: {[c.image for c in game.discard_pile.all()]}")
             game.save()
             top_card = get_last_card(game)
             #print(f"Computer played: {card.image}")
@@ -72,8 +92,6 @@ def can_play(card, top_card):
     Czy karte mozna zagrac
     """
     #print(f"Top Card: {top_card}, played Card: {card}")
-    #print(f"Comparing: Card color: {card.color}, top color: {top_card.color}")
-    #print(f"Comparing: Card number: {card.number}, top number: {top_card.number}")
 
     if card.number and top_card.number:
         if card.number == top_card.number:
@@ -88,7 +106,6 @@ def can_play(card, top_card):
     
     return False
     
-
 def home(request):
     """
     Strona startowa
@@ -151,14 +168,22 @@ def game(request):
     if request.method == "POST":
         if "play_card" in request.POST:
             card_id = request.POST.get("card_id")
+
+            if not card_id:
+                return render(request, 'game.html', {
+                    'game': game,
+                    'top_card': top_card,
+                    'error': 'Musisz wybrać kartę do zagrania',
+                })
+            
             card = Card.objects.get(id=card_id)
             if card in game.player_hand.all():
+
                 if can_play(card, top_card):
                     game.player_hand.remove(card)
                     #print(f"Before: {[c.image for c in game.discard_pile.all()]}")
                     add_to_pile(game, card)
                     #print(f"After: {[c.image for c in game.discard_pile.all()]}")
-                    #print(f"zoo: {[c.image for c in game.discard_pile.all()]}")
                     game.save()
                     top_card = get_last_card(game)
                     #print(f"Zagrano kartę: {card.image}, Discard Pile: {[c.image for c in game.discard_pile.all()]}")
@@ -175,6 +200,9 @@ def game(request):
                 game.player_hand.add(next_card)
                 game.deck.remove(next_card)
                 game.save()
+
+        if not game.deck.exists():
+            refresh_deck(game)
 
         computer_turn(game)
         top_card = get_last_card(game)
