@@ -58,6 +58,9 @@ def add_to_pile(game, card):
     game.discard_pile.add(card)
     
 def computer_turn(game):
+    """
+    Tura komputera
+    """
     computer_hand = list(game.computer_hand.all())
     top_card = get_last_card(game)
 
@@ -76,24 +79,6 @@ def computer_turn(game):
         game.computer_hand.add(next_card)
         game.deck.remove(next_card)
         game.save()
-
-def can_play(card, top_card):
-    """
-    Czy karte mozna zagrac
-    """
-
-    if card.number and top_card.number:
-        if card.number == top_card.number:
-            return True
-    
-    if card.marking and top_card.marking:
-        if card.marking == top_card.marking:
-            return True
-    
-    if card.color == top_card.color:
-        return True
-    
-    return False
     
 def home(request):
     """
@@ -111,7 +96,7 @@ def home(request):
 
 def rules(request):
     """
-    Strona z zasadami
+    Strona z zasadami i trybami
     """
     if request.method == "POST":
         selected_game_mode = request.POST.get('game_mode')
@@ -136,7 +121,7 @@ def show_cards(request):
 
 def game(request):
     """
-    Widok gry (gra z komputerem)
+    Widok gry z komputerem
     """
     if not Card.objects.exists():
         deck_generator()
@@ -221,7 +206,7 @@ def game(request):
 
 def game_1v1(request):
     """
-    Gra 1v1 z innym graczem
+    Gra 1v1
     """
     if not Card.objects.exists():
         deck_generator()
@@ -229,10 +214,13 @@ def game_1v1(request):
     player_nick = request.session.get('nick', 'Gracz')
     player, created = Player.objects.get_or_create(nick=player_nick)
 
+    selected_rules = request.session.get('selected_rules')
+    rules = Rules(selected_rules)
+
     game = Game.objects.filter(player=player).exclude(opponent=None).first()
 
     if not game:
-        game = Game.objects.create(player=player)
+        game = Game.objects.create(player=player, rules = selected_rules)
     
     if not game.discard_pile.exists():
         cards = list(Card.objects.all())
@@ -250,80 +238,95 @@ def game_1v1(request):
 
     top_card = get_last_card(game)
 
-    if request.method == "POST":
-        if "play_card" in request.POST:
-            card_id = request.POST.get("card_id")
-            if not card_id:
-                return render(request, 'game_1v1.html', {
-                    'game': game,
-                    'top_card': top_card,
-                    'error': 'Musisz wybrać kartę do zagrania',
-                })
+    is_player_turn = game.turn == 'player'
 
-            card = Card.objects.get(id=card_id)
-            if card in game.player_hand.all():
-                if can_play(card, top_card):
-                    game.player_hand.remove(card)
-                    add_to_pile(game, card)
-                    game.save()
-                    top_card = get_last_card(game)
-                else:
+    if request.method == "POST":
+        if is_player_turn:
+            if "play_card" in request.POST:
+                card_id = request.POST.get("card_id")
+                if not card_id:
                     return render(request, 'game_1v1.html', {
                         'game': game,
                         'top_card': top_card,
-                        'error': 'Nie możesz zagrać tej karty',
+                        'error': 'Musisz wybrać kartę do zagrania',
+                        'is_player_turn': is_player_turn,
                     })
 
-        elif "draw_card" in request.POST:
-            if game.deck.exists():
-                next_card = game.deck.first()
-                game.player_hand.add(next_card)
-                game.deck.remove(next_card)
-                game.save()
+                card = Card.objects.get(id=card_id)
+                if card in game.player_hand.all():
+                    if rules.apply_rules(card, top_card):
+                        game.player_hand.remove(card)
+                        add_to_pile(game, card)
+                        game.turn = 'opponent'
+                        game.save()
+                        top_card = get_last_card(game)
+                    else:
+                        return render(request, 'game_1v1.html', {
+                            'game': game,
+                            'top_card': top_card,
+                            'error': 'Nie możesz zagrać tej karty',
+                            'is_player_turn': is_player_turn,
+                        })
+
+            elif "draw_card" in request.POST:
+                if game.deck.exists():
+                    next_card = game.deck.first()
+                    game.player_hand.add(next_card)
+                    game.deck.remove(next_card)
+                    game.turn = 'opponent'
+                    game.save()
+
+        elif not is_player_turn:
+            if "play_card" in request.POST:
+                card_id = request.POST.get("card_id")
+                if not card_id:
+                    return render(request, 'game_1v1.html', {
+                        'game': game,
+                        'top_card': top_card,
+                        'error': 'Przeciwnik musi wybrać kartę do zagrania',
+                        'is_player_turn': is_player_turn,
+                    })
+
+                card = Card.objects.get(id=card_id)
+                if card in game.opponent_hand.all():
+                    if rules.apply_rules(card, top_card):
+                        game.opponent_hand.remove(card)
+                        add_to_pile(game, card)
+                        game.turn = 'player'
+                        game.save()
+                        top_card = get_last_card(game)
+                    else:
+                        return render(request, 'game_1v1.html', {
+                            'game': game,
+                            'top_card': top_card,
+                            'error': 'Przeciwnik nie może zagrać tej karty',
+                            'is_player_turn': is_player_turn,
+                        })
+
+            elif "draw_card" in request.POST:
+                if game.deck.exists():
+                    next_card = game.deck.first()
+                    game.opponent_hand.add(next_card)
+                    game.deck.remove(next_card)
+                    game.turn = 'player'
+                    game.save()
 
         if not game.deck.exists():
             refresh_deck(game)
-
-        opponent_turn(game)
-        top_card = get_last_card(game)
 
     game.refresh_from_db()
 
     if game.player_hand.count() == 0:
         return render(request, 'win_1v1.html', {'game': game})
-    elif game.computer_hand.count() == 0:
+    elif game.opponent_hand.count() == 0:
         return render(request, 'lose_1v1.html', {'game': game})
 
     return render(request, 'game_1v1.html', {
         'game': game,
         'top_card': top_card,
         'error': None,
+        'is_player_turn': is_player_turn,
     })
-
-def opponent_turn(game):
-    """
-    Tura drugiego gracza (przeciwnika)
-    """
-    if not game.deck.exists():
-        return
-
-    opponent_hand = list(game.opponent_hand.all())
-    top_card = get_last_card(game)
-
-    for card in opponent_hand:
-        if can_play(card, top_card):
-            game.opponent_hand.remove(card)
-            add_to_pile(game, card)
-            game.save()
-            top_card = get_last_card(game)
-            return
-
-    if game.deck.exists():
-        next_card = game.deck.first()
-        game.opponent_hand.add(next_card)
-        game.deck.remove(next_card)
-        game.save()
-
 
 
 
