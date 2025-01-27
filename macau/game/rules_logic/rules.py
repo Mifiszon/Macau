@@ -1,5 +1,7 @@
 class Rules:
     def __init__(self, rules, custom_settings=None):
+        if rules is None:
+            rules = []
         self.rules = rules
         self.custom_settings = custom_settings
 

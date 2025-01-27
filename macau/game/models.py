@@ -25,8 +25,11 @@ class Player(models.Model):
     
 class Game(models.Model):
     player = models.OneToOneField(Player, on_delete=models.CASCADE, related_name="game_player")
+    opponent = models.OneToOneField(Player, on_delete=models.CASCADE, related_name="game_opponent", null=True, blank=True)
     computer_hand = models.ManyToManyField(Card, related_name="computer_hand")
     deck = models.ManyToManyField(Card, related_name="deck")
+    rules = models.CharField(max_length=50, null=True, blank=True)
+    opponent_hand = models.ManyToManyField(Card, related_name='opponent_cards', blank=True)
     last_played_card = models.ForeignKey(Card, on_delete=models.SET_NULL, null=True, related_name="last_played")
     player_hand = models.ManyToManyField(Card, related_name="player_hand")
     discard_pile = models.ManyToManyField(Card, related_name='discard_pile')

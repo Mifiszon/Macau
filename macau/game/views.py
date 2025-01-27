@@ -58,40 +58,29 @@ def add_to_pile(game, card):
     game.discard_pile.add(card)
     
 def computer_turn(game):
-    """
-    Ruch kompa
-    """
-    if not game.deck.exists():
-        return
-    
     computer_hand = list(game.computer_hand.all())
     top_card = get_last_card(game)
 
-    #print(f"Top card: {top_card.image}")
-    
-    for card in computer_hand:
-        if can_play(card, top_card):
-            game.computer_hand.remove(card)
-            #print(f"Before: {[c.image for c in game.discard_pile.all()]}")
-            add_to_pile(game, card)
-            #print(f"After: {[c.image for c in game.discard_pile.all()]}")
-            game.save()
-            top_card = get_last_card(game)
-            #print(f"Computer played: {card.image}")
-            return
+    selected_rules = game.rules
+    rules = Rules(selected_rules)
 
+    for card in computer_hand:
+        if rules.apply_rules(card, top_card):
+            game.computer_hand.remove(card)
+            add_to_pile(game, card)
+            game.save()
+            return
+    
     if game.deck.exists():
         next_card = game.deck.first()
         game.computer_hand.add(next_card)
         game.deck.remove(next_card)
         game.save()
-        #print(f"Computer drew: {next_card.image}")
 
 def can_play(card, top_card):
     """
     Czy karte mozna zagrac
     """
-    #print(f"Top Card: {top_card}, played Card: {card}")
 
     if card.number and top_card.number:
         if card.number == top_card.number:
@@ -125,9 +114,17 @@ def rules(request):
     Strona z zasadami
     """
     if request.method == "POST":
+        selected_game_mode = request.POST.get('game_mode')
         selected_rules = request.POST.getlist('rules')
+
+        request.session['selected_game_mode'] = selected_game_mode
         request.session['selected_rules'] = selected_rules
-        return redirect('game')
+
+        if selected_game_mode == '1v1':
+            return redirect('game_1v1')
+        else:
+            return redirect('game')
+
     return render(request, 'rules.html')
 
 def show_cards(request):
@@ -139,17 +136,23 @@ def show_cards(request):
 
 def game(request):
     """
-    Widok gry
+    Widok gry (gra z komputerem)
     """
     if not Card.objects.exists():
         deck_generator()
 
+    selected_rules = request.session.get('selected_rules')
+    rules = Rules(selected_rules)
+
     player_nick = request.session.get('nick', 'Gracz')
     player, created = Player.objects.get_or_create(nick=player_nick)
 
-    game, created = Game.objects.get_or_create(player=player)
+    game = Game.objects.filter(player=player, opponent=None).first()
+    
+    if not game:
+        game = Game.objects.create(player=player, rules = selected_rules)
 
-    if created:
+    if not game.discard_pile.exists():
         cards = list(Card.objects.all())
         random.shuffle(cards)
         player_cards = cards[:5]
@@ -168,25 +171,21 @@ def game(request):
     if request.method == "POST":
         if "play_card" in request.POST:
             card_id = request.POST.get("card_id")
-
             if not card_id:
                 return render(request, 'game.html', {
                     'game': game,
                     'top_card': top_card,
                     'error': 'Musisz wybrać kartę do zagrania',
                 })
-            
+
             card = Card.objects.get(id=card_id)
             if card in game.player_hand.all():
-
-                if can_play(card, top_card):
+                if rules.apply_rules(card, top_card):
                     game.player_hand.remove(card)
-                    #print(f"Before: {[c.image for c in game.discard_pile.all()]}")
                     add_to_pile(game, card)
-                    #print(f"After: {[c.image for c in game.discard_pile.all()]}")
                     game.save()
                     top_card = get_last_card(game)
-                    #print(f"Zagrano kartę: {card.image}, Discard Pile: {[c.image for c in game.discard_pile.all()]}")
+                    print(f"Top Card: {top_card}, played Card: {card}")
                 else:
                     return render(request, 'game.html', {
                         'game': game,
@@ -219,6 +218,115 @@ def game(request):
         'top_card': top_card,
         'error': None,
     })
+
+def game_1v1(request):
+    """
+    Gra 1v1 z innym graczem
+    """
+    if not Card.objects.exists():
+        deck_generator()
+
+    player_nick = request.session.get('nick', 'Gracz')
+    player, created = Player.objects.get_or_create(nick=player_nick)
+
+    game = Game.objects.filter(player=player).exclude(opponent=None).first()
+
+    if not game:
+        game = Game.objects.create(player=player)
+    
+    if not game.discard_pile.exists():
+        cards = list(Card.objects.all())
+        random.shuffle(cards)
+        player_cards = cards[:5]
+        opponent_cards = cards[5:10]
+        discard_pile = [cards[10]]
+        deck = cards[11:]
+
+        game.discard_pile.set(discard_pile)
+        game.player_hand.set(player_cards)
+        game.opponent_hand.set(opponent_cards)
+        game.deck.set(deck)
+        game.save()
+
+    top_card = get_last_card(game)
+
+    if request.method == "POST":
+        if "play_card" in request.POST:
+            card_id = request.POST.get("card_id")
+            if not card_id:
+                return render(request, 'game_1v1.html', {
+                    'game': game,
+                    'top_card': top_card,
+                    'error': 'Musisz wybrać kartę do zagrania',
+                })
+
+            card = Card.objects.get(id=card_id)
+            if card in game.player_hand.all():
+                if can_play(card, top_card):
+                    game.player_hand.remove(card)
+                    add_to_pile(game, card)
+                    game.save()
+                    top_card = get_last_card(game)
+                else:
+                    return render(request, 'game_1v1.html', {
+                        'game': game,
+                        'top_card': top_card,
+                        'error': 'Nie możesz zagrać tej karty',
+                    })
+
+        elif "draw_card" in request.POST:
+            if game.deck.exists():
+                next_card = game.deck.first()
+                game.player_hand.add(next_card)
+                game.deck.remove(next_card)
+                game.save()
+
+        if not game.deck.exists():
+            refresh_deck(game)
+
+        opponent_turn(game)
+        top_card = get_last_card(game)
+
+    game.refresh_from_db()
+
+    if game.player_hand.count() == 0:
+        return render(request, 'win_1v1.html', {'game': game})
+    elif game.computer_hand.count() == 0:
+        return render(request, 'lose_1v1.html', {'game': game})
+
+    return render(request, 'game_1v1.html', {
+        'game': game,
+        'top_card': top_card,
+        'error': None,
+    })
+
+def opponent_turn(game):
+    """
+    Tura drugiego gracza (przeciwnika)
+    """
+    if not game.deck.exists():
+        return
+
+    opponent_hand = list(game.opponent_hand.all())
+    top_card = get_last_card(game)
+
+    for card in opponent_hand:
+        if can_play(card, top_card):
+            game.opponent_hand.remove(card)
+            add_to_pile(game, card)
+            game.save()
+            top_card = get_last_card(game)
+            return
+
+    if game.deck.exists():
+        next_card = game.deck.first()
+        game.opponent_hand.add(next_card)
+        game.deck.remove(next_card)
+        game.save()
+
+
+
+
 
 
 
