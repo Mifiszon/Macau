@@ -206,7 +206,7 @@ def game(request):
 
 def game_1v1(request):
     """
-    Gra 1v1
+    Gra 1v1 2 graczy
     """
     if not Card.objects.exists():
         deck_generator()
