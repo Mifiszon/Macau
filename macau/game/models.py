@@ -30,6 +30,7 @@ class Game(models.Model):
     deck = models.ManyToManyField(Card, related_name="deck")
     rules = models.CharField(max_length=50, null=True, blank=True)
     opponent_hand = models.ManyToManyField(Card, related_name='opponent_cards', blank=True)
+    turn_action_done = models.BooleanField(default=False)
     last_played_card = models.ForeignKey(Card, on_delete=models.SET_NULL, null=True, related_name="last_played")
     player_hand = models.ManyToManyField(Card, related_name="player_hand")
     discard_pile = models.ManyToManyField(Card, related_name='discard_pile')

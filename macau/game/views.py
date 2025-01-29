@@ -206,12 +206,12 @@ def game(request):
 
 def switch_turn(game):
     game.turn = 'opponent' if game.turn == 'player' else 'player'
+    game.turn_action_done = False
     game.save()
+    game.refresh_from_db()
+    return game
 
 def game_1v1(request):
-    """
-    Gra 1v1 2 graczy
-    """
     if not Card.objects.exists():
         deck_generator()
 
@@ -222,32 +222,35 @@ def game_1v1(request):
     rules = Rules(selected_rules)
 
     game = Game.objects.filter(player=player).first()
-
     if not game:
-        game = Game.objects.create(player=player, rules=selected_rules)
+        game = Game.objects.create(player=player, rules=selected_rules, turn_action_done=False)
 
     if not game.discard_pile.exists():
         cards = list(Card.objects.all())
         random.shuffle(cards)
-        player_cards = cards[:5]
-        opponent_cards = cards[5:10]
-        discard_pile = [cards[10]]
-        deck = cards[11:]
-
-        game.discard_pile.set(discard_pile)
-        game.player_hand.set(player_cards)
-        game.opponent_hand.set(opponent_cards)
-        game.deck.set(deck)
+        game.discard_pile.set([cards[10]])
+        game.player_hand.set(cards[:5])
+        game.opponent_hand.set(cards[5:10])
+        game.deck.set(cards[11:])
         game.save()
-    
-    game.refresh_from_db()
 
+    game.refresh_from_db()
     top_card = get_last_card(game)
     is_player_turn = game.turn == 'player'
 
     if request.method == "POST":
-        if is_player_turn:
-            if "play_card" in request.POST:
+        if "change_turn" in request.POST:
+            if game.turn_action_done:  
+                game = switch_turn(game)
+            else:
+                return render(request, 'game_1v1.html', {
+                    'game': game,
+                    'top_card': top_card,
+                    'is_player_turn': is_player_turn,
+                })
+
+        elif is_player_turn:
+            if "play_card" in request.POST and not game.turn_action_done:
                 card_id = request.POST.get("card_id")
                 if not card_id:
                     return render(request, 'game_1v1.html', {
@@ -262,9 +265,9 @@ def game_1v1(request):
                     if rules.apply_rules(card, top_card):
                         game.player_hand.remove(card)
                         add_to_pile(game, card)
-                        
+                        game.turn_action_done = True  
+                        game.save()
                         game.refresh_from_db()
-                        switch_turn(game)
                         top_card = get_last_card(game)
                     else:
                         return render(request, 'game_1v1.html', {
@@ -274,17 +277,17 @@ def game_1v1(request):
                             'is_player_turn': is_player_turn,
                         })
 
-            elif "draw_card" in request.POST:
+            elif "draw_card" in request.POST and not game.turn_action_done:
                 if game.deck.exists():
                     next_card = game.deck.first()
                     game.player_hand.add(next_card)
                     game.deck.remove(next_card)
-
+                    game.turn_action_done = True  
+                    game.save()
                     game.refresh_from_db()
-                    switch_turn(game)
 
-        else:
-            if "play_card" in request.POST:
+        elif not is_player_turn:
+            if "play_card" in request.POST and not game.turn_action_done:
                 card_id = request.POST.get("card_id")
                 if not card_id:
                     return render(request, 'game_1v1.html', {
@@ -299,9 +302,9 @@ def game_1v1(request):
                     if rules.apply_rules(card, top_card):
                         game.opponent_hand.remove(card)
                         add_to_pile(game, card)
-                        
+                        game.turn_action_done = True  
+                        game.save()
                         game.refresh_from_db()
-                        switch_turn(game)
                         top_card = get_last_card(game)
                     else:
                         return render(request, 'game_1v1.html', {
@@ -311,24 +314,22 @@ def game_1v1(request):
                             'is_player_turn': is_player_turn,
                         })
 
-            elif "draw_card" in request.POST:
+            elif "draw_card" in request.POST and not game.turn_action_done:
                 if game.deck.exists():
                     next_card = game.deck.first()
                     game.opponent_hand.add(next_card)
                     game.deck.remove(next_card)
-
+                    game.turn_action_done = True  
+                    game.save()
                     game.refresh_from_db()
-                    switch_turn(game)
 
         if not game.deck.exists():
             refresh_deck(game)
 
-    game.refresh_from_db()
-
     if game.player_hand.count() == 0:
-        return render(request, 'win_1v1.html', {'game': game})
+        return render(request, 'playerwin.html', {'game': game})
     elif game.opponent_hand.count() == 0:
-        return render(request, 'lose_1v1.html', {'game': game})
+        return render(request, 'opponentwin.html', {'game': game})
 
     return render(request, 'game_1v1.html', {
         'game': game,

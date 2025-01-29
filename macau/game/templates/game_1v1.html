@@ -4,7 +4,7 @@
     {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gra - Wybierz Kartę</title>
+    <title>Makao</title>
     <link rel="stylesheet" href="{% static 'gamestyle1v1.css' %}">
 </head>
 <body>
@@ -28,11 +28,8 @@
                             </label>
                         {% endfor %}
                     </div>
-                    <button type="submit" name="play_card" value="true" {% if not is_player_turn %}disabled{% endif %}>Zagraj kartę</button>
-                    <button type="submit" name="draw_card" value="true" {% if not is_player_turn %}disabled{% endif %}>Dobierz kartę</button>
-                    {% if error and is_player_turn %}
-                        <p class="error">{{ error }}</p>
-                    {% endif %}
+                    <button type="submit" name="play_card" value="true" {% if not is_player_turn %}style="display:none;" disabled{% endif %}>Zagraj kartę</button>
+                    <button type="submit" name="draw_card" value="true" {% if not is_player_turn %}style="display:none;" disabled{% endif %}>Dobierz kartę</button>
                 </form>
             </section>
             
@@ -49,11 +46,8 @@
                             </label>
                         {% endfor %}
                     </div>
-                    <button type="submit" name="play_card" value="true" {% if is_player_turn %}disabled{% endif %}>Zagraj kartę</button>
-                    <button type="submit" name="draw_card" value="true" {% if is_player_turn %}disabled{% endif %}>Dobierz kartę</button>
-                    {% if error and not is_player_turn %}
-                        <p class="error">{{ error }}</p>
-                    {% endif %}
+                    <button type="submit" name="play_card" value="true" {% if is_player_turn %}style="display:none;" disabled{% endif %}>Zagraj kartę</button>
+                    <button type="submit" name="draw_card" value="true" {% if is_player_turn %}style="display:none;" disabled{% endif %}>Dobierz kartę</button>
                 </form>
             </section>
         </section>
@@ -62,6 +56,9 @@
             <form method="POST">
                 {% csrf_token %}
                 <button type="submit" name="change_turn" value="true">Zmień turę</button>
+                {% if error %}
+                    <p class="error">{{ error }}</p>
+                {% endif %}
             </form>
         </section>
 
@@ -73,6 +70,7 @@
         <section id="game-info">
             <img src="{% static 'card_deck.png' %}" alt="Card deck" class="card-deck" style="width: 10%; height: 10%;">
             <h2>Informacje o grze</h2>
+            <p>Aktualna tura: {% if game.turn == 'player' %}Gracz 1{% elif game.turn == 'opponent' %}Gracz 2{% endif %}</p>
             <p>Liczba kart w talii: {{ game.deck.count }}</p>
         </section>
 
