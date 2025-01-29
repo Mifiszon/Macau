@@ -204,6 +204,10 @@ def game(request):
         'error': None,
     })
 
+def switch_turn(game):
+    game.turn = 'opponent' if game.turn == 'player' else 'player'
+    game.save()
+
 def game_1v1(request):
     """
     Gra 1v1 2 graczy
@@ -222,7 +226,6 @@ def game_1v1(request):
     if not game:
         game = Game.objects.create(player=player, rules=selected_rules)
 
-    # Inicjalizacja talii, jeśli jeszcze nie istnieje
     if not game.discard_pile.exists():
         cards = list(Card.objects.all())
         random.shuffle(cards)
@@ -237,7 +240,7 @@ def game_1v1(request):
         game.deck.set(deck)
         game.save()
     
-    game.refresh_from_db()  # 🔹 Odświeżenie stanu gry
+    game.refresh_from_db()
 
     top_card = get_last_card(game)
     is_player_turn = game.turn == 'player'
@@ -260,9 +263,8 @@ def game_1v1(request):
                         game.player_hand.remove(card)
                         add_to_pile(game, card)
                         
-                        game.refresh_from_db()  # 🔹 Sprawdzenie, czy stan się zmienił
-                        game.turn = 'opponent'  # 🔹 Zmieniamy turę PO aktualizacji
-                        game.save()
+                        game.refresh_from_db()
+                        switch_turn(game)
                         top_card = get_last_card(game)
                     else:
                         return render(request, 'game_1v1.html', {
@@ -278,11 +280,10 @@ def game_1v1(request):
                     game.player_hand.add(next_card)
                     game.deck.remove(next_card)
 
-                    game.refresh_from_db()  # 🔹 Odświeżenie stanu gry przed zmianą tury
-                    game.turn = 'opponent'
-                    game.save()
+                    game.refresh_from_db()
+                    switch_turn(game)
 
-        else:  # Tura przeciwnika
+        else:
             if "play_card" in request.POST:
                 card_id = request.POST.get("card_id")
                 if not card_id:
@@ -299,9 +300,8 @@ def game_1v1(request):
                         game.opponent_hand.remove(card)
                         add_to_pile(game, card)
                         
-                        game.refresh_from_db()  # 🔹 Odświeżamy stan gry
-                        game.turn = 'player'  # 🔹 Zmieniamy turę PO aktualizacji
-                        game.save()
+                        game.refresh_from_db()
+                        switch_turn(game)
                         top_card = get_last_card(game)
                     else:
                         return render(request, 'game_1v1.html', {
@@ -317,14 +317,13 @@ def game_1v1(request):
                     game.opponent_hand.add(next_card)
                     game.deck.remove(next_card)
 
-                    game.refresh_from_db()  # 🔹 Odświeżenie przed zmianą tury
-                    game.turn = 'player'
-                    game.save()
+                    game.refresh_from_db()
+                    switch_turn(game)
 
         if not game.deck.exists():
             refresh_deck(game)
 
-    game.refresh_from_db()  # 🔹 Upewniamy się, że gra ma aktualny stan
+    game.refresh_from_db()
 
     if game.player_hand.count() == 0:
         return render(request, 'win_1v1.html', {'game': game})
