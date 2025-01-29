@@ -57,29 +57,6 @@ def add_to_pile(game, card):
     card.save()
     game.discard_pile.add(card)
     
-def computer_turn(game):
-    """
-    Tura komputera
-    """
-    computer_hand = list(game.computer_hand.all())
-    top_card = get_last_card(game)
-
-    selected_rules = game.rules
-    rules = Rules(selected_rules)
-
-    for card in computer_hand:
-        if rules.apply_rules(card, top_card):
-            game.computer_hand.remove(card)
-            add_to_pile(game, card)
-            game.save()
-            return
-    
-    if game.deck.exists():
-        next_card = game.deck.first()
-        game.computer_hand.add(next_card)
-        game.deck.remove(next_card)
-        game.save()
-    
 def home(request):
     """
     Strona startowa
@@ -118,6 +95,35 @@ def show_cards(request):
         """
         cards = Card.objects.all()
         return render(request, 'show_cards.html', {'cards': cards})
+
+def computer_turn(game):
+    """
+    Tura komputera
+    """
+    computer_hand = list(game.computer_hand.all())
+    top_card = get_last_card(game)
+
+    selected_rules = game.rules
+    rules = Rules(selected_rules)
+
+    for card in computer_hand:
+        if rules.apply_rules(card, top_card):
+            game.computer_hand.remove(card)
+            add_to_pile(game, card)
+            game.save()
+            return
+    
+    if game.deck.exists():
+        next_card = game.deck.first()
+        game.computer_hand.add(next_card)
+        game.deck.remove(next_card)
+        game.save()
+
+        if rules.apply_rules(next_card, top_card):
+            game.computer_hand.remove(next_card)
+            add_to_pile(game, next_card)
+            game.save()
+            #print(f"komputer Od razu zagrał dobraną kartę: {next_card}")
 
 def game(request):
     """
@@ -185,6 +191,12 @@ def game(request):
                 game.deck.remove(next_card)
                 game.save()
 
+                if rules.apply_rules(next_card, top_card):
+                    game.player_hand.remove(next_card)
+                    add_to_pile(game, next_card)
+                    game.save()
+                    #print(f"Gracz od razu zagrał dobraną kartę: {next_card}")
+
         if not game.deck.exists():
             refresh_deck(game)
 
@@ -204,13 +216,11 @@ def game(request):
         'error': None,
     })
 
-from django.shortcuts import render, redirect
-
 def switch_turn(game):
     game.turn = 'opponent' if game.turn == 'player' else 'player'
     game.turn_action_done = False
     game.save()
-    return redirect('game_1v1')  # <-- Zmiana tutaj
+    return redirect('game_1v1')
 
 def game_1v1(request):
     if not Card.objects.exists():
@@ -242,7 +252,14 @@ def game_1v1(request):
     if request.method == "POST":
         if "change_turn" in request.POST:
             if game.turn_action_done:  
-                return switch_turn(game)  # <-- Redirect zamiast renderowania
+                return switch_turn(game)
+            else:
+                return render(request, 'game_1v1.html', {
+                    'game': game,
+                    'top_card': top_card,
+                    'is_player_turn': is_player_turn,
+                    'error': 'Nie możesz zakończyć tury bez wykonania ruchu.',
+                })
 
         elif is_player_turn:
             if "play_card" in request.POST and not game.turn_action_done:
@@ -262,7 +279,7 @@ def game_1v1(request):
                         add_to_pile(game, card)
                         game.turn_action_done = True  
                         game.save()
-                        return redirect('game_1v1')  # <-- Redirect po akcji
+                        return redirect('game_1v1')
                     else:
                         return render(request, 'game_1v1.html', {
                             'game': game,
@@ -278,7 +295,13 @@ def game_1v1(request):
                     game.deck.remove(next_card)
                     game.turn_action_done = True  
                     game.save()
-                    return redirect('game_1v1')  # <-- Redirect po akcji
+
+                    if rules.apply_rules(next_card, top_card):
+                        game.player_hand.remove(next_card)
+                        add_to_pile(game, next_card)
+                        game.save()
+
+                    return redirect('game_1v1')
 
         elif not is_player_turn:
             if "play_card" in request.POST and not game.turn_action_done:
@@ -298,7 +321,7 @@ def game_1v1(request):
                         add_to_pile(game, card)
                         game.turn_action_done = True  
                         game.save()
-                        return redirect('game_1v1')  # <-- Redirect po akcji
+                        return redirect('game_1v1')
                     else:
                         return render(request, 'game_1v1.html', {
                             'game': game,
@@ -314,7 +337,13 @@ def game_1v1(request):
                     game.deck.remove(next_card)
                     game.turn_action_done = True  
                     game.save()
-                    return redirect('game_1v1')  # <-- Redirect po akcji
+
+                    if rules.apply_rules(next_card, top_card):
+                        game.opponent_hand.remove(next_card)
+                        add_to_pile(game, next_card)
+                        game.save()
+
+                    return redirect('game_1v1')
 
         if not game.deck.exists():
             refresh_deck(game)
