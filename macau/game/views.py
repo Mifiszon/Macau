@@ -170,7 +170,7 @@ def game(request):
                     add_to_pile(game, card)
                     game.save()
                     top_card = get_last_card(game)
-                    print(f"Top Card: {top_card}, played Card: {card}")
+                    #print(f"Top Card: {top_card}, played Card: {card}")
                 else:
                     return render(request, 'game.html', {
                         'game': game,
@@ -222,7 +222,7 @@ def game_1v1(request):
     if not game:
         game = Game.objects.create(player=player, rules=selected_rules)
 
-    
+    # Inicjalizacja talii, jeśli jeszcze nie istnieje
     if not game.discard_pile.exists():
         cards = list(Card.objects.all())
         random.shuffle(cards)
@@ -236,9 +236,10 @@ def game_1v1(request):
         game.opponent_hand.set(opponent_cards)
         game.deck.set(deck)
         game.save()
+    
+    game.refresh_from_db()  # 🔹 Odświeżenie stanu gry
 
     top_card = get_last_card(game)
-
     is_player_turn = game.turn == 'player'
 
     if request.method == "POST":
@@ -258,7 +259,9 @@ def game_1v1(request):
                     if rules.apply_rules(card, top_card):
                         game.player_hand.remove(card)
                         add_to_pile(game, card)
-                        game.turn = 'opponent'
+                        
+                        game.refresh_from_db()  # 🔹 Sprawdzenie, czy stan się zmienił
+                        game.turn = 'opponent'  # 🔹 Zmieniamy turę PO aktualizacji
                         game.save()
                         top_card = get_last_card(game)
                     else:
@@ -274,17 +277,19 @@ def game_1v1(request):
                     next_card = game.deck.first()
                     game.player_hand.add(next_card)
                     game.deck.remove(next_card)
+
+                    game.refresh_from_db()  # 🔹 Odświeżenie stanu gry przed zmianą tury
                     game.turn = 'opponent'
                     game.save()
 
-        elif not is_player_turn:
+        else:  # Tura przeciwnika
             if "play_card" in request.POST:
                 card_id = request.POST.get("card_id")
                 if not card_id:
                     return render(request, 'game_1v1.html', {
                         'game': game,
                         'top_card': top_card,
-                        'error': 'Przeciwnik musi wybrać kartę do zagrania',
+                        'error': 'Musisz wybrać kartę do zagrania',
                         'is_player_turn': is_player_turn,
                     })
 
@@ -293,14 +298,16 @@ def game_1v1(request):
                     if rules.apply_rules(card, top_card):
                         game.opponent_hand.remove(card)
                         add_to_pile(game, card)
-                        game.turn = 'player'
+                        
+                        game.refresh_from_db()  # 🔹 Odświeżamy stan gry
+                        game.turn = 'player'  # 🔹 Zmieniamy turę PO aktualizacji
                         game.save()
                         top_card = get_last_card(game)
                     else:
                         return render(request, 'game_1v1.html', {
                             'game': game,
                             'top_card': top_card,
-                            'error': 'Przeciwnik nie może zagrać tej karty',
+                            'error': 'Nie możesz zagrać tej karty',
                             'is_player_turn': is_player_turn,
                         })
 
@@ -309,13 +316,15 @@ def game_1v1(request):
                     next_card = game.deck.first()
                     game.opponent_hand.add(next_card)
                     game.deck.remove(next_card)
+
+                    game.refresh_from_db()  # 🔹 Odświeżenie przed zmianą tury
                     game.turn = 'player'
                     game.save()
 
         if not game.deck.exists():
             refresh_deck(game)
 
-    game.refresh_from_db()
+    game.refresh_from_db()  # 🔹 Upewniamy się, że gra ma aktualny stan
 
     if game.player_hand.count() == 0:
         return render(request, 'win_1v1.html', {'game': game})

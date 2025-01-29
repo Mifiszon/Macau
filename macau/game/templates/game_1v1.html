@@ -9,13 +9,13 @@
 </head>
 <body>
     <header>
-        <h1>1v1</h1>
+        <h1>Gracz 1 VS Gracz 2</h1>
     </header>
 
     <main>
         <section id="game-container">
             <section id="player1-cards" class="card-section">
-                <h2>Twoje karty</h2>
+                <h2>Gracz 1</h2>
                 <p>{{ game.player_hand.count }} kart</p>
                 <form method="POST">
                     {% csrf_token %}
@@ -33,7 +33,7 @@
             </section>
             
             <section id="player2-cards" class="card-section">
-                <h2>Karty przeciwnika</h2>
+                <h2>Gracz 2</h2>
                 <p>{{ game.opponent_hand.count }} kart</p>
                 <form method="POST">
                     {% csrf_token %}
@@ -62,6 +62,10 @@
             <h2>Informacje o grze</h2>
             <p>Liczba kart w talii: {{ game.deck.count }}</p>
         </section>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
 
     </main>
 </body>
