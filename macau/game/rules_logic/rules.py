@@ -84,9 +84,9 @@ class Rules:
 
         if card.marking == 'krol':
             if card.color in ['kier', 'pik']:
-                return "bitny, draw_5_cards"
+                return "bitny"
             elif card.color in ['karo', 'trefl']:
-                return "niebitny, cancel_bitny"
+                return "niebitny"
 
         return False
 
