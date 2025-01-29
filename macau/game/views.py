@@ -204,12 +204,13 @@ def game(request):
         'error': None,
     })
 
+from django.shortcuts import render, redirect
+
 def switch_turn(game):
     game.turn = 'opponent' if game.turn == 'player' else 'player'
     game.turn_action_done = False
     game.save()
-    game.refresh_from_db()
-    return game
+    return redirect('game_1v1')  # <-- Zmiana tutaj
 
 def game_1v1(request):
     if not Card.objects.exists():
@@ -241,13 +242,7 @@ def game_1v1(request):
     if request.method == "POST":
         if "change_turn" in request.POST:
             if game.turn_action_done:  
-                game = switch_turn(game)
-            else:
-                return render(request, 'game_1v1.html', {
-                    'game': game,
-                    'top_card': top_card,
-                    'is_player_turn': is_player_turn,
-                })
+                return switch_turn(game)  # <-- Redirect zamiast renderowania
 
         elif is_player_turn:
             if "play_card" in request.POST and not game.turn_action_done:
@@ -267,8 +262,7 @@ def game_1v1(request):
                         add_to_pile(game, card)
                         game.turn_action_done = True  
                         game.save()
-                        game.refresh_from_db()
-                        top_card = get_last_card(game)
+                        return redirect('game_1v1')  # <-- Redirect po akcji
                     else:
                         return render(request, 'game_1v1.html', {
                             'game': game,
@@ -284,7 +278,7 @@ def game_1v1(request):
                     game.deck.remove(next_card)
                     game.turn_action_done = True  
                     game.save()
-                    game.refresh_from_db()
+                    return redirect('game_1v1')  # <-- Redirect po akcji
 
         elif not is_player_turn:
             if "play_card" in request.POST and not game.turn_action_done:
@@ -304,8 +298,7 @@ def game_1v1(request):
                         add_to_pile(game, card)
                         game.turn_action_done = True  
                         game.save()
-                        game.refresh_from_db()
-                        top_card = get_last_card(game)
+                        return redirect('game_1v1')  # <-- Redirect po akcji
                     else:
                         return render(request, 'game_1v1.html', {
                             'game': game,
@@ -321,7 +314,7 @@ def game_1v1(request):
                     game.deck.remove(next_card)
                     game.turn_action_done = True  
                     game.save()
-                    game.refresh_from_db()
+                    return redirect('game_1v1')  # <-- Redirect po akcji
 
         if not game.deck.exists():
             refresh_deck(game)
