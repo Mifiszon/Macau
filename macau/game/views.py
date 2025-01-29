@@ -217,10 +217,11 @@ def game_1v1(request):
     selected_rules = request.session.get('selected_rules')
     rules = Rules(selected_rules)
 
-    game = Game.objects.filter(player=player).exclude(opponent=None).first()
+    game = Game.objects.filter(player=player).first()
 
     if not game:
-        game = Game.objects.create(player=player, rules = selected_rules)
+        game = Game.objects.create(player=player, rules=selected_rules)
+
     
     if not game.discard_pile.exists():
         cards = list(Card.objects.all())
@@ -327,9 +328,3 @@ def game_1v1(request):
         'error': None,
         'is_player_turn': is_player_turn,
     })
-
-
-
-
-
-
