@@ -44,7 +44,7 @@ def refresh_deck(game):
 
 def get_last_card(game):
     """
-    ostatnio zagrana karta
+    Ostatnio zagrana karta
     """
     return game.discard_pile.order_by('-order').first()
 
@@ -248,8 +248,13 @@ def game_1v1(request):
     game.refresh_from_db()
     top_card = get_last_card(game)
     is_player_turn = game.turn == 'player'
+    show_cards = request.session.get('show_cards', False)
 
     if request.method == "POST":
+        if "toggle_visibility" in request.POST:
+            request.session['show_cards'] = not show_cards
+            return redirect('game_1v1')
+
         if "change_turn" in request.POST:
             if game.turn_action_done:  
                 return switch_turn(game)
@@ -258,6 +263,7 @@ def game_1v1(request):
                     'game': game,
                     'top_card': top_card,
                     'is_player_turn': is_player_turn,
+                    'show_cards': show_cards,
                     'error': 'Nie możesz zakończyć tury bez wykonania ruchu.',
                 })
 
@@ -270,6 +276,7 @@ def game_1v1(request):
                         'top_card': top_card,
                         'error': 'Musisz wybrać kartę do zagrania',
                         'is_player_turn': is_player_turn,
+                        'show_cards': show_cards,
                     })
 
                 card = Card.objects.get(id=card_id)
@@ -286,6 +293,7 @@ def game_1v1(request):
                             'top_card': top_card,
                             'error': 'Nie możesz zagrać tej karty',
                             'is_player_turn': is_player_turn,
+                            'show_cards': show_cards,
                         })
 
             elif "draw_card" in request.POST and not game.turn_action_done:
@@ -312,6 +320,7 @@ def game_1v1(request):
                         'top_card': top_card,
                         'error': 'Musisz wybrać kartę do zagrania',
                         'is_player_turn': is_player_turn,
+                        'show_cards': show_cards,
                     })
 
                 card = Card.objects.get(id=card_id)
@@ -328,6 +337,7 @@ def game_1v1(request):
                             'top_card': top_card,
                             'error': 'Nie możesz zagrać tej karty',
                             'is_player_turn': is_player_turn,
+                            'show_cards': show_cards,
                         })
 
             elif "draw_card" in request.POST and not game.turn_action_done:
@@ -358,4 +368,9 @@ def game_1v1(request):
         'top_card': top_card,
         'error': None,
         'is_player_turn': is_player_turn,
+        'show_cards': show_cards,
     })
+
+
+def multiplayer(request):
+    pass

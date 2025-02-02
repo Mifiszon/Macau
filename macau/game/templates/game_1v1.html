@@ -24,7 +24,7 @@
                         {% for card in game.player_hand.all %}
                             <label>
                                 <input type="radio" name="card_id" value="{{ card.id }}" {% if not is_player_turn %}disabled{% endif %}>
-                                <img src="{% if is_player_turn %}{{ card.image.url }}{% else %}{% static 'card_back.jpg' %}{% endif %}" alt="{{ card.marking }} {{ card.color }}" class="card-image">
+                                <img src="{% if show_cards or is_player_turn %}{{ card.image.url }}{% else %}{% static 'card_back.jpg' %}{% endif %}" alt="{{ card.marking }} {{ card.color }}" class="card-image">
                             </label>
                         {% endfor %}
                     </div>
@@ -42,8 +42,8 @@
                         {% for card in game.opponent_hand.all %}
                             <label>
                                 <input type="radio" name="card_id" value="{{ card.id }}" {% if is_player_turn %}disabled{% endif %}>
-                                <img src="{% if not is_player_turn %}{{ card.image.url }}{% else %}{% static 'card_back.jpg' %}{% endif %}" alt="{{ card.marking }} {{ card.color }}" class="card-image">
-                            </label>
+                                <img src="{% if show_cards or not is_player_turn %}{{ card.image.url }}{% else %}{% static 'card_back.jpg' %}{% endif %}" alt="{{ card.marking }} {{ card.color }}" class="card-image">
+                                </label>
                         {% endfor %}
                     </div>
                     <button type="submit" name="play_card" value="true" {% if is_player_turn %}style="display:none;" disabled{% endif %}>Zagraj kartę</button>
@@ -56,11 +56,14 @@
             <form method="POST">
                 {% csrf_token %}
                 <button type="submit" name="change_turn" value="true">Zmień turę</button>
-                {% if error %}
-                    <p class="error">{{ error }}</p>
-                {% endif %}
+                <button type="submit" name="toggle_visibility" value="true">
+                    {% if show_cards %}Ukryj karty{% else %}Odkryj karty{% endif %}
+                </button>
             </form>
-        </section>
+            {% if error %}
+                <p class="error">{{ error }}</p>
+            {% endif %}
+        </section>        
 
         <section id="last-card">
             <h2>Ostatnia zagrana karta</h2>
