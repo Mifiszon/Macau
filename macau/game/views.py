@@ -195,7 +195,6 @@ def game(request):
                     game.player_hand.remove(next_card)
                     add_to_pile(game, next_card)
                     game.save()
-                    #print(f"Gracz od razu zagrał dobraną kartę: {next_card}")
 
         if not game.deck.exists():
             refresh_deck(game)
