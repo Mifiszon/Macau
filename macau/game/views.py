@@ -226,9 +226,9 @@ def game_1v1(request):
         deck_generator()
 
     player_nick = request.session.get('nick', 'Gracz')
-    player, _ = Player.objects.get_or_create(nick=player_nick)
+    player, created = Player.objects.get_or_create(nick=player_nick)
 
-    selected_rules = request.session.get('selected_rules', {})
+    selected_rules = request.session.get('selected_rules')
     rules = Rules(selected_rules)
 
     game = Game.objects.filter(player=player).first()
@@ -247,30 +247,20 @@ def game_1v1(request):
     game.refresh_from_db()
     top_card = get_last_card(game)
     is_player_turn = game.turn == 'player'
-    show_cards = request.session.get('show_cards', False)
 
     if request.method == "POST":
-        if "toggle_visibility" in request.POST:
-            request.session['show_cards'] = not show_cards
-            request.session.modified = True
-            return redirect('game_1v1')
-
         if "change_turn" in request.POST:
             if game.turn_action_done:  
-                game.turn = 'opponent' if is_player_turn else 'player'
-                game.turn_action_done = False
-                game.save()
-                return redirect('game_1v1')
+                return switch_turn(game)
             else:
                 return render(request, 'game_1v1.html', {
                     'game': game,
                     'top_card': top_card,
                     'is_player_turn': is_player_turn,
-                    'show_cards': show_cards,
                     'error': 'Nie możesz zakończyć tury bez wykonania ruchu.',
                 })
 
-        if is_player_turn:
+        elif is_player_turn:
             if "play_card" in request.POST and not game.turn_action_done:
                 card_id = request.POST.get("card_id")
                 if not card_id:
@@ -279,22 +269,23 @@ def game_1v1(request):
                         'top_card': top_card,
                         'error': 'Musisz wybrać kartę do zagrania',
                         'is_player_turn': is_player_turn,
-                        'show_cards': show_cards,
                     })
+
                 card = Card.objects.get(id=card_id)
-                if card in game.player_hand.all() and rules.apply_rules(card, top_card):
-                    game.player_hand.remove(card)
-                    add_to_pile(game, card)
-                    game.turn_action_done = True  
-                    game.save()
-                    return redirect('game_1v1')
-                return render(request, 'game_1v1.html', {
-                    'game': game,
-                    'top_card': top_card,
-                    'error': 'Nie możesz zagrać tej karty',
-                    'is_player_turn': is_player_turn,
-                    'show_cards': show_cards,
-                })
+                if card in game.player_hand.all():
+                    if rules.apply_rules(card, top_card):
+                        game.player_hand.remove(card)
+                        add_to_pile(game, card)
+                        game.turn_action_done = True  
+                        game.save()
+                        return redirect('game_1v1')
+                    else:
+                        return render(request, 'game_1v1.html', {
+                            'game': game,
+                            'top_card': top_card,
+                            'error': 'Nie możesz zagrać tej karty',
+                            'is_player_turn': is_player_turn,
+                        })
 
             elif "draw_card" in request.POST and not game.turn_action_done:
                 if game.deck.exists():
@@ -303,6 +294,54 @@ def game_1v1(request):
                     game.deck.remove(next_card)
                     game.turn_action_done = True  
                     game.save()
+
+                    if rules.apply_rules(next_card, top_card):
+                        game.player_hand.remove(next_card)
+                        add_to_pile(game, next_card)
+                        game.save()
+
+                    return redirect('game_1v1')
+
+        elif not is_player_turn:
+            if "play_card" in request.POST and not game.turn_action_done:
+                card_id = request.POST.get("card_id")
+                if not card_id:
+                    return render(request, 'game_1v1.html', {
+                        'game': game,
+                        'top_card': top_card,
+                        'error': 'Musisz wybrać kartę do zagrania',
+                        'is_player_turn': is_player_turn,
+                    })
+
+                card = Card.objects.get(id=card_id)
+                if card in game.opponent_hand.all():
+                    if rules.apply_rules(card, top_card):
+                        game.opponent_hand.remove(card)
+                        add_to_pile(game, card)
+                        game.turn_action_done = True  
+                        game.save()
+                        return redirect('game_1v1')
+                    else:
+                        return render(request, 'game_1v1.html', {
+                            'game': game,
+                            'top_card': top_card,
+                            'error': 'Nie możesz zagrać tej karty',
+                            'is_player_turn': is_player_turn,
+                        })
+
+            elif "draw_card" in request.POST and not game.turn_action_done:
+                if game.deck.exists():
+                    next_card = game.deck.first()
+                    game.opponent_hand.add(next_card)
+                    game.deck.remove(next_card)
+                    game.turn_action_done = True  
+                    game.save()
+
+                    if rules.apply_rules(next_card, top_card):
+                        game.opponent_hand.remove(next_card)
+                        add_to_pile(game, next_card)
+                        game.save()
+
                     return redirect('game_1v1')
 
         if not game.deck.exists():
@@ -316,11 +355,9 @@ def game_1v1(request):
     return render(request, 'game_1v1.html', {
         'game': game,
         'top_card': top_card,
-        'is_player_turn': is_player_turn,
-        'show_cards': show_cards,
         'error': None,
+        'is_player_turn': is_player_turn,
     })
-
 
 def multiplayer(request):
     pass
