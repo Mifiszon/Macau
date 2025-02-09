@@ -38,3 +38,6 @@ class Game(models.Model):
                                          
     def __str__(self):
         return f"Game with {self.player.nick}"
+    
+class Room(models.Model):
+    pass
