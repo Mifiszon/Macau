@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect
-from .models import Card, Player, Game
+from .models import Card, Player, Game, Room
 from .forms import PlayerForm
 from .rules_logic.rules import Rules
+from django.http import JsonResponse
 from django.db import models
-import random
+from django.shortcuts import get_object_or_404
+import random, string
 
 def deck_generator():
     """
@@ -84,6 +86,8 @@ def rules(request):
 
         if selected_game_mode == '1v1':
             return redirect('game_1v1')
+        elif selected_game_mode == "multiplayer":
+            return redirect('room_select')
         else:
             return redirect('game')
 
@@ -359,5 +363,39 @@ def game_1v1(request):
         'is_player_turn': is_player_turn,
     })
 
-def multiplayer(request):
-    pass
+def generate_room_code():
+    """Generuje unikalny kod pokoju."""
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+
+def create_room(request):
+    """Tworzy nowy pokój i przypisuje gracza jako jego założyciela."""
+    if request.method == "POST":
+        nick = request.POST.get("nick")
+        player, _ = Player.objects.get_or_create(nick=nick)
+        
+        if player.rooms.exists():
+            return JsonResponse({"error": "Jesteś już w pokoju!"}, status=400)
+
+        room_code = generate_room_code()
+        room = Room.objects.create(code=room_code)
+        room.players.add(player)
+
+        return JsonResponse({"room_code": room.code, "message": "Pokój utworzony!"})
+    
+def join_room(request):
+    """Pozwala graczowi dołączyć do pokoju."""
+    if request.method == "POST":
+        room_code = request.POST.get("room_code")
+        nick = request.POST.get("nick")
+
+        room = get_object_or_404(Room, code=room_code)
+        player, _ = Player.objects.get_or_create(nick=nick)
+
+        if player.rooms.exists():
+            return JsonResponse({"error": "Jesteś już w pokoju!"}, status=400)
+
+        room.players.add(player)
+        return JsonResponse({"message": f"Dołączyłeś do pokoju {room_code}!"})
+    
+def room_selection_view(request):
+    return render(request, "room_select.html")

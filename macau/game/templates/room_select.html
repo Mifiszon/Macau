@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5 bg-dark">
+    <h2 class="text-center text-danger mb-4">Wybierz opcję</h2>
+    <div class="d-flex flex-column align-items-center">
+        <a href="{% url 'create_room' %}" class="btn btn-danger btn-lg mb-3 w-50">Stwórz pokój</a>
+        <a href="{% url 'join_room' %}" class="btn btn-danger btn-lg w-50">Dołącz do pokoju</a>
+    </div>
+</div>
+{% endblock %}
