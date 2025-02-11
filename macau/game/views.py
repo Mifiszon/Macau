@@ -370,8 +370,8 @@ def generate_room_code():
 def create_room(request):
     """Tworzy nowy pokój i przypisuje gracza jako jego założyciela."""
     if request.method == "POST":
-        nick = request.POST.get("nick")
-        player, _ = Player.objects.get_or_create(nick=nick)
+        player_nick = request.session.get('nick', 'Gracz')
+        player, created = Player.objects.get_or_create(nick=player_nick)
         
         if player.rooms.exists():
             return JsonResponse({"error": "Jesteś już w pokoju!"}, status=400)
@@ -381,6 +381,8 @@ def create_room(request):
         room.players.add(player)
 
         return JsonResponse({"room_code": room.code, "message": "Pokój utworzony!"})
+
+    return render(request, "create_room.html")
     
 def join_room(request):
     """Pozwala graczowi dołączyć do pokoju."""
@@ -396,6 +398,8 @@ def join_room(request):
 
         room.players.add(player)
         return JsonResponse({"message": f"Dołączyłeś do pokoju {room_code}!"})
-    
+
+    return render(request, "join_room.html")
+
 def room_selection_view(request):
     return render(request, "room_select.html")

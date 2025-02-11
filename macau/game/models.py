@@ -41,7 +41,7 @@ class Game(models.Model):
         return f"Game with {self.player.nick}"
 
 class Room(models.Model):
-    code = models.CharField(max_length=6, unique=True)  # Kod pokoju
+    code = models.CharField(max_length=6, unique=True)
     players = models.ManyToManyField('Player', related_name='rooms')
     created_at = models.DateTimeField(auto_now_add=True)
 
