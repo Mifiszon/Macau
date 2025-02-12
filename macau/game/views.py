@@ -385,7 +385,7 @@ def create_room(request):
     return render(request, "create_room.html")
     
 def join_room(request):
-    """Pozwala graczowi dołączyć do pokoju."""
+    """pozwala graczowi dołączyć do pokoju."""
     if request.method == "POST":
         room_code = request.POST.get("room_code")
         nick = request.POST.get("nick")
