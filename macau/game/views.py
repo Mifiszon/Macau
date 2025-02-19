@@ -368,7 +368,7 @@ def generate_room_code():
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
 
 def create_room(request):
-    """Tworzy nowy pokój i przypisuje gracza jako jego założyciela."""
+    """tworzy nowy pokój i przypisuje gracza jako jego założyciela."""
     if request.method == "POST":
         player_nick = request.session.get('nick', 'Gracz')
         player, created = Player.objects.get_or_create(nick=player_nick)
