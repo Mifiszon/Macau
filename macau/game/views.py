@@ -364,7 +364,7 @@ def game_1v1(request):
     })
 
 def generate_room_code():
-    """Generuje unikalny kod pokoju."""
+    """Generuje unikalny kod pokoju"""
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
 
 def create_room(request):
