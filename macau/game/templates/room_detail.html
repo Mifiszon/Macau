@@ -20,19 +20,24 @@
 
 <script>
     function updatePlayerList() {
-        fetch("{% url 'get_room_players' room.code %}")
-            .then(response => response.json())
-            .then(data => {
-                const playerList = document.getElementById("player-list");
-                playerList.innerHTML = "";
-                data.players.forEach(player => {
+    fetch("{% url 'get_room_players' room.code %}")
+        .then(response => response.json())
+        .then(data => {
+            const playerList = document.getElementById("player-list");
+            const currentPlayers = new Set(
+                Array.from(playerList.children).map(li => li.textContent)
+            );
+
+            data.players.forEach(player => {
+                if (!currentPlayers.has(player)) {
                     const li = document.createElement("li");
                     li.textContent = player;
                     li.classList.add("list-group-item", "bg-dark", "text-danger", "border-danger");
                     playerList.appendChild(li);
-                });
+                }
             });
-    }
+        });
+}
 
     setInterval(updatePlayerList, 3000);
 </script>
