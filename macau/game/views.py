@@ -368,7 +368,7 @@ def generate_room_code():
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
 
 def create_room(request):
-    """tworzy nowy pokój i przypisuje gracza jako jego założyciela."""
+    """Tworzy nowy pokój i przypisuje gracza jako jego założyciela."""
     if request.method == "POST":
         player_nick = request.session.get('nick', 'Gracz')
         player, created = Player.objects.get_or_create(nick=player_nick)
@@ -380,15 +380,20 @@ def create_room(request):
         room = Room.objects.create(code=room_code)
         room.players.add(player)
 
-        return JsonResponse({"room_code": room.code, "message": "Pokój utworzony!"})
+        request.session['room_code'] = room.code
+
+        return redirect('room_detail', room_code=room.code)
 
     return render(request, "create_room.html")
-    
+
 def join_room(request):
-    """pozwala graczowi dołączyć do pokoju."""
+    """Pozwala graczowi dołączyć do pokoju."""
     if request.method == "POST":
         room_code = request.POST.get("room_code")
-        nick = request.POST.get("nick")
+        nick = request.session.get('nick')
+
+        if not nick:
+            return JsonResponse({"error": "Brak nicku! Ustaw nick na stronie startowej."}, status=400)
 
         room = get_object_or_404(Room, code=room_code)
         player, _ = Player.objects.get_or_create(nick=nick)
@@ -397,9 +402,29 @@ def join_room(request):
             return JsonResponse({"error": "Jesteś już w pokoju!"}, status=400)
 
         room.players.add(player)
-        return JsonResponse({"message": f"Dołączyłeś do pokoju {room_code}!"})
+        request.session['room_code'] = room.code
+
+        return redirect('room_detail', room_code=room.code)
 
     return render(request, "join_room.html")
 
+
 def room_selection_view(request):
     return render(request, "room_select.html")
+
+def room_detail(request, room_code):
+    """Strona pokoju z listą graczy."""
+    room = get_object_or_404(Room, code=room_code)
+    players = room.players.all()
+
+    return render(request, "room_detail.html", {
+        "room": room,
+        "players": players
+    })
+
+def get_room_players(request, room_code):
+    """Zwraca listę graczy w pokoju (dla AJAX-a)."""
+    room = get_object_or_404(Room, code=room_code)
+    players = list(room.players.values_list("nick", flat=True))
+    return JsonResponse({"players": players})
+

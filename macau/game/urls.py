@@ -12,6 +12,7 @@ urlpatterns = [
     path("room_select/", views.room_selection_view, name="room_select"),
     path("create_room/", views.create_room, name="create_room"),
     path("join_room/", views.join_room, name="join_room"),
+    path("room_detail/<str:room_code>/", views.room_detail, name="room_detail"),
 ]
 
 if settings.DEBUG:

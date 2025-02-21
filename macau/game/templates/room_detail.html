@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container bg-dark text-danger p-4 rounded">
+    <h2 class="text-center">Pokój: {{ room.code }}</h2>
+    <p class="text-center">Udostępnij ten kod, aby inni mogli dołączyć!</p>
+
+    <h3 class="text-center">Gracze w pokoju:</h3>
+    <ul id="player-list" class="list-group bg-dark">
+        {% for player in players %}
+            <li class="list-group-item bg-dark text-danger border-danger">{{ player.nick }}</li>
+        {% endfor %}
+    </ul>
+
+    <div class="text-center mt-3">
+        <button onclick="location.reload()" class="btn btn-danger">Odśwież</button>
+    </div>
+</div>
+{% endblock %}
+
+<script>
+    function updatePlayerList() {
+        fetch("{% url 'get_room_players' room.code %}")
+            .then(response => response.json())
+            .then(data => {
+                const playerList = document.getElementById("player-list");
+                playerList.innerHTML = "";
+                data.players.forEach(player => {
+                    const li = document.createElement("li");
+                    li.textContent = player;
+                    li.classList.add("list-group-item", "bg-dark", "text-danger", "border-danger");
+                    playerList.appendChild(li);
+                });
+            });
+    }
+
+    setInterval(updatePlayerList, 3000);
+</script>
