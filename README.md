@@ -44,7 +44,7 @@ After the game ends, a **win or lose screen** appears, displaying the final resu
 ![Gameplay](computer.png)
 ![HotSeat](1v1.png)
 ![Multiplayer](room.png)
-![Game Over Screen](screenshots/game_over.png)
+![Game Over Screen](win.png)
 
 ## 📌 Technologies Used
 
