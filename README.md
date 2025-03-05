@@ -39,11 +39,22 @@ After the game ends, a **win or lose screen** appears, displaying the final resu
 
 ## 📸 Screenshots
 
+**Home Page**  
 ![Nickname Screen](home.png)
+
+**Game Mode Selection**  
 ![Game Mode Selection](rules.png)
+
+**Player vs Computer**  
 ![Gameplay](computer.png)
+
+**Player vs Player**
 ![HotSeat](1v1.png)
+
+**Multiplayer**
 ![Multiplayer](room.png)
+
+**Game Over**
 ![Game Over Screen](win.png)
 
 ## 📌 Technologies Used
