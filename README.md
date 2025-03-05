@@ -55,6 +55,7 @@ After the game ends, a **win or lose screen** appears, displaying the final resu
 ![Multiplayer](room.png)
 
 **Game Over**
+
 ![Game Over Screen](win.png)
 
 ## 📌 Technologies Used
