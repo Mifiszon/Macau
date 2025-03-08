@@ -81,7 +81,7 @@ After the game ends, a **win or lose screen** appears, displaying the final resu
 
 ## 📚 Sources
 
-(https://en.wikipedia.org/wiki/Macau_(card_game))
+https://en.wikipedia.org/wiki/Macau_(card_game)
 
 ---
 
