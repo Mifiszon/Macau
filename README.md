@@ -66,7 +66,7 @@ After the game ends, a **win or lose screen** appears, displaying the final resu
 ## 📌 Technologies Used
 
 - **Django** – Backend framework.
-- **AJAX** *(planned)* – For real-time multiplayer.
+- **AJAX** – For real-time multiplayer.
 - **HTML/CSS/JavaScript** – Frontend.
 
 ## 🚀 Future Plans
