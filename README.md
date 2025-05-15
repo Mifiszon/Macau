@@ -1,4 +1,4 @@
-# Makao(Macau) - Django Card Game-
+# Makao(Macau) - Django Card Game
 
 This repository contains a **Makao card game** built using **Django**. The game offers multiple gameplay modes and rule sets, allowing players to enjoy a strategic and engaging experience.
 
