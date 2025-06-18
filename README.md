@@ -77,7 +77,7 @@ After the game ends, a **win or lose screen** appears, displaying the final resu
 
 ## 👨‍💻 Authors
 
-- **Michał Ogiba**
+**Michał Ogiba**  2025
 
 ## 📚 Sources
 
