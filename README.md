@@ -5,7 +5,7 @@ This repository contains a **Makao card game** built using **Django**. The game 
 > **The game is currently in development**, with some features still being implemented.
 
 ## 📖 Description
-
+=
 **Makao** is a popular card game similar to **Crazy Eights**, where players must get rid of all their cards by following specific rules. The game features different rule sets and modes to provide variety and challenge.
 
 ## 🎮 Gameplay
