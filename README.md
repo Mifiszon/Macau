@@ -63,27 +63,26 @@ After the game ends, a **win or lose screen** appears, displaying the final resu
 
 ![Game Over Screen](win.png)
 
-## 📌 Technologies Used
+## Technologies Used
 
 - **Django** – Backend framework.
 - **AJAX** – For real-time multiplayer.
 - **HTML/CSS/JavaScript/Bootstrap** – Frontend.
 
-## 🚀 Future Plans
+## Future Plans
 
 - ✅ Implement **custom rule sets**.
 - ✅ Expand **multiplayer functionality**.
 - ✅ Improve **AI opponents**.
 
-## 👨‍💻 Authors
 
-**Michał Ogiba**  2025
-
-## 📚 Sources
+## Sources
 
 https://en.wikipedia.org/wiki/Macau_(card_game)
 
----
 
-**🛠️ Built with Django**
+## 👨‍💻 Author
+
+**Michał Ogiba** — Bachelor's Degree Project, Jagiellonian University, 2025  
+[linkedin.com/in/michalogiba](https://linkedin.com/in/michalogiba) · [github.com/Mifiszon](https://github.com/Mifiszon)
 
